@@ -38,7 +38,7 @@ public class Program
     /// Runs the application with parsed command line arguments.
     /// </summary>
     /// <param name="invocationContext">Context for the command line options.</param>
-    public static void Run(InvocationContext invocationContext)
+    public static async Task Run(InvocationContext invocationContext)
     {
         // Set the log level.
         if (invocationContext.ParseResult.GetValueForOption(TraceOption))
@@ -54,8 +54,10 @@ public class Program
         
         // Start the application.
         var appInstances = new AppInstances();
+        await appInstances.OpenVrInputs.InitializeOpenVrAsync();
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();
+        Logger.Info("Started Enigma. Make sure a Roblox client or Roblox Studio window is focused.");
         
         // Keep the application alive.
         new CancellationToken().WaitHandle.WaitOne();

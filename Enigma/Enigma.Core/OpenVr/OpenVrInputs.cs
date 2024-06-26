@@ -1,7 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using System.Threading.Tasks;
+using Enigma.Core.Diagnostic;
 using Enigma.Core.Extension;
 using Enigma.Core.OpenVr.Model;
 using OVRSharp;
+using OVRSharp.Exceptions;
 using OVRSharp.Math;
 using Valve.VR;
 
@@ -18,17 +22,38 @@ public class OpenVrInputs
     /// <summary>
     /// Instance of the OpenVR system for reading inputs.
     /// </summary>
-    private readonly CVRSystem _ovrSystem;
+    private CVRSystem? _ovrSystem;
 
     /// <summary>
-    /// Creates an OpenVR input handler.
+    /// Initializes OpenVR. Yields for it to be initialized.
     /// </summary>
-    public OpenVrInputs()
+    public async Task InitializeOpenVrAsync()
     {
-        // TODO: Move out of initialization to allow app to start without SteamVR running.
-        // TODO: What happens when SteamVR stops?
-        var app = new Application(Application.ApplicationType.Background);
-        this._ovrSystem = app.OVRSystem;
+        var waitMessageLogged = false;
+        while (this._ovrSystem == null)
+        {
+            try
+            {
+                // Initialize OpenVR.
+                this._ovrSystem = new Application(Application.ApplicationType.Background).OVRSystem;
+            }
+            catch (OpenVRSystemException<EVRInitError>)
+            {
+                // Log the message if it is the first time, and wait to retyr.
+                if (waitMessageLogged == false)
+                {
+                    waitMessageLogged = true;
+                    Logger.Info("OpenVR (SteamVR) is not running or has no hardware detected. Waiting for the headset to become detected.");
+                }
+                await Task.Delay(50);
+            }
+        }
+        
+        // Print after it loaded if OpenVR was not initially open.
+        if (waitMessageLogged)
+        {
+            Logger.Debug("OpenVR headset detected.");
+        }
     }
     
     /// <summary>
@@ -37,6 +62,12 @@ public class OpenVrInputs
     /// <returns>The current OpenVR inputs for Roblox.</returns>
     public TrackerInputList GetInputs()
     {
+        // Throw an exception if OpenVR is not initialized.
+        if (this._ovrSystem == null)
+        {
+            throw new InvalidOperationException("OpenVR is not initialized.");
+        }
+        
         // Get the poses.
         var poseArray = new TrackedDevicePose_t[DevicesToCheck];
         this._ovrSystem.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, 0, poseArray);
