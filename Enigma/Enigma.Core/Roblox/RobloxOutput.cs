@@ -60,8 +60,11 @@ public class RobloxOutput
         // Return if the window is not focused.
         if (!this._windowState.IsRobloxFocused())
         {
+            if (this._heartbeatStopwatch.IsRunning)
+            {
+                Logger.Info("Stopping data sending to Roblox client.");
+            }
             this._heartbeatStopwatch.Stop();
-            Logger.Info("Stopping data sending to Roblox client.");
             return;
         }
         
