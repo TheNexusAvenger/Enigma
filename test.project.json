@@ -1,0 +1,12 @@
+{
+    "name": "Enigma-Test",
+    "tree": {
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "$className": "ReplicatedStorage",
+            "Enigma": {
+                "$path": "."
+            }
+        }
+    }
+}
