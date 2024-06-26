@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
+using Enigma.Core.Diagnostic;
 
 namespace Enigma.Core.Roblox;
 
@@ -15,12 +17,33 @@ public class RobloxStudioState
     private readonly Stopwatch _stopwatch = new Stopwatch();
 
     /// <summary>
+    /// Creates a Roblox Studio state.
+    /// </summary>
+    public RobloxStudioState()
+    {
+        // Occasionally check if Roblox Studio is connected to update the logging.
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                this.IsRobloxStudioConnected();
+                await Task.Delay(100);
+            }
+        });
+    }
+
+    /// <summary>
     /// Returns if the Roblox Studio companion plugin responded recently enough to not use the TextBox capture method.
     /// </summary>
     /// <returns>Whether Roblox Studio's plugin is considered connected.</returns>
     public bool IsRobloxStudioConnected()
     {
-        return this._stopwatch.IsRunning && this._stopwatch.ElapsedMilliseconds <= this.RobloxStudioHeartbeatTimeoutMilliseconds;
+        if (this._stopwatch.IsRunning && this._stopwatch.ElapsedMilliseconds > this.RobloxStudioHeartbeatTimeoutMilliseconds)
+        {
+            this._stopwatch.Stop();
+            Logger.Info("Roblox Studio companion app disconnected.");
+        }
+        return this._stopwatch.IsRunning;
     }
 
     /// <summary>
@@ -28,6 +51,10 @@ public class RobloxStudioState
     /// </summary>
     public void HeartbeatSent()
     {
+        if (!this._stopwatch.IsRunning)
+        {
+            Logger.Info("Roblox Studio companion app connected.");
+        }
         this._stopwatch.Restart();
     }
 }
