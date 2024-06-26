@@ -19,7 +19,7 @@ public class Logger
     {
         IncludeDate = true,
         NamespaceWhitelist = new List<string>() { "Enigma" },
-        MinimumLevel = LogLevel.Debug,
+        MinimumLevel = LogLevel.Information,
     };
     
     /// <summary>
