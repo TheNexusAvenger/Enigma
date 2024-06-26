@@ -5,7 +5,6 @@ using Enigma.Core.OpenVr.Model;
 using Enigma.Core.Shim.Output;
 using Enigma.Core.Shim.Window;
 using InputSimulatorStandard.Native;
-using Clipboard = Enigma.Core.Shim.Output.Clipboard;
 using IClipboard = Enigma.Core.Shim.Output.IClipboard;
 
 namespace Enigma.Core.Roblox;
@@ -16,6 +15,11 @@ public class RobloxOutput
     /// Interval in milliseconds between sending heartbeat keys.
     /// </summary>
     public const int HeartbeatIntervalMilliseconds = 250;
+
+    /// <summary>
+    /// The last data that was sent to Roblox.
+    /// </summary>
+    public string LastData { get; private set; } = "";
     
     /// <summary>
     /// Keyboard to send key inputs with.
@@ -60,6 +64,13 @@ public class RobloxOutput
     /// <returns>Whether the data was pushed to the client.</returns>
     public async Task<bool> PushDataAsync(string data)
     {
+        // Return if the data is unchanged.
+        // true is returned to act as if it was successful, even though nothing changed.
+        if (data == this.LastData)
+        {
+            return true;
+        }
+        
         // Return if the window is not focused.
         if (!this._windowState.IsRobloxFocused())
         {
@@ -99,6 +110,7 @@ public class RobloxOutput
         {
             this._keyboard.KeyPress(VirtualKeyCode.VK_V);
             dataSent = true;
+            this.LastData = data;
         }
         this._keyboard.KeyUp(VirtualKeyCode.LCONTROL);
         return dataSent;
