@@ -35,6 +35,7 @@ public class LogOutputLoop : BaseLoop
     private void OutputLog(LogSummary logEntry)
     {
         // Log the ticks.
+        if (logEntry.RobloxOutputTicksCompleted == 0 && logEntry.RobloxOutputTicksSkipped == 0) return;
         Logger.Debug($"Roblox client data send tick rate: {logEntry.RobloxOutputTicksCompleted} completed, {logEntry.RobloxOutputTicksSkipped} skipped");
         if (logEntry.RobloxOutputTicksSkipped > 0)
         {
