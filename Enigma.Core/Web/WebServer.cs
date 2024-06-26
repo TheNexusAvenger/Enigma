@@ -68,10 +68,11 @@ public class WebServer
         // Build the API.
         var enigmaApi = app.MapGroup("/enigma");
         enigmaApi.MapGet("/status", () => "UP");
-        enigmaApi.MapGet("/data", () =>
+        enigmaApi.MapGet("/data", () => this._openVrInputs.GetInputs().Serialize());
+        enigmaApi.MapPost("/heartbeat", () =>
         {
             this._robloxStudioState.HeartbeatSent();
-            return this._openVrInputs.GetInputs().Serialize();
+            return "Success";
         });
 
         // Run the server in the background.

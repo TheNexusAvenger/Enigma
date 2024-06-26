@@ -9,7 +9,7 @@ public class RobloxStudioState
     /// <summary>
     /// Timeout (in milliseconds) for Roblox Studio to send a heartbeat.
     /// </summary>
-    public long RobloxStudioHeartbeatTimeoutMilliseconds { get; set; } = 1000;
+    public long RobloxStudioHeartbeatTimeoutMilliseconds { get; set; } = 10000;
     
     /// <summary>
     /// Stopwatch used to track when the last heartbeat was sent from Roblox Studio.
