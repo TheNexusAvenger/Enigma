@@ -50,14 +50,6 @@ public class RobloxOutput
         this._clipboard = clipboard;
         this._windowState = windowState;
     }
-    
-    /// <summary>
-    /// Creates a Roblox output.
-    /// </summary>
-    public RobloxOutput() : this(new Keyboard(), new Clipboard(), new WindowsWindowState())
-    {
-        
-    }
 
     /// <summary>
     /// Pushes a string of text to the Roblox client.

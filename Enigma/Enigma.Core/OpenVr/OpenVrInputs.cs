@@ -25,6 +25,8 @@ public class OpenVrInputs
     /// </summary>
     public OpenVrInputs()
     {
+        // TODO: Move out of initialization to allow app to start without SteamVR running.
+        // TODO: What happens when SteamVR stops?
         var app = new Application(Application.ApplicationType.Background);
         this._ovrSystem = app.OVRSystem;
     }

@@ -10,19 +10,22 @@ public class RobloxOutputLoop : BaseLoop
     /// <summary>
     /// Input handler for OpenVR.
     /// </summary>
-    private readonly OpenVrInputs _openVrInputs = new OpenVrInputs();
+    private readonly OpenVrInputs _openVrInputs;
 
     /// <summary>
     /// Roblox keyboard output.
     /// </summary>
-    private readonly RobloxOutput _robloxOutput = new RobloxOutput();
+    private readonly RobloxOutput _robloxOutput;
 
     /// <summary>
     /// Creates a Roblox output loop.
     /// </summary>
-    public RobloxOutputLoop() : base(15)
+    /// <param name="openVrInputs">Input handler for OpenVR.</param>
+    /// <param name="robloxOutput">Roblox keyboard output.</param>
+    public RobloxOutputLoop(OpenVrInputs openVrInputs, RobloxOutput robloxOutput) : base(15)
     {
-        
+        this._openVrInputs = openVrInputs;
+        this._robloxOutput = robloxOutput;
     }
     
     /// <summary>
