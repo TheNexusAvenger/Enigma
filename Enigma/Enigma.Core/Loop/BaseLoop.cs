@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Enigma.Core.Diagnostic;
 using Enigma.Core.Diagnostic.Profile;
 
 namespace Enigma.Core.Loop;
@@ -28,9 +29,14 @@ public abstract class BaseLoop
     public long TicksSkipped { get; private set; }
 
     /// <summary>
+    /// Name of the loop.
+    /// </summary>
+    public string LoopName => this.GetType().Name;
+
+    /// <summary>
     /// Name of the profiler stat name.
     /// </summary>
-    public string ProfilerStatName => $"{this.GetType().Name}_TickDuration";
+    public string ProfilerStatName => $"{this.LoopName}_TickDuration";
 
     /// <summary>
     /// Whether a tick is running.
@@ -62,6 +68,7 @@ public abstract class BaseLoop
         {
             this.TicksSkipped += 1;
             this._statsSemaphore.Release();
+            Logger.Trace($"Loop {this.LoopName} skipped a tick step due to the previous tick not completing in time.");
             return;
         }
         this._tickRunning = true;
@@ -77,7 +84,7 @@ public abstract class BaseLoop
         }
         catch (Exception ex)
         {
-            // TODO: Log
+            Logger.Error($"Error occured in {this.LoopName} tick step.\n{ex}");
         }
         
         // Update the stats.
@@ -93,6 +100,7 @@ public abstract class BaseLoop
     public void Start()
     {
         this._timer.Start();
+        Logger.Debug($"Started loop {this.LoopName}.");
     }
 
     /// <summary>
@@ -101,6 +109,18 @@ public abstract class BaseLoop
     public void Stop()
     {
         this._timer.Stop();
+        Logger.Debug($"Stopped loop {this.LoopName}.");
+    }
+
+    /// <summary>
+    /// Resets the stats of the loop.
+    /// </summary>
+    public async Task ResetStatsAsync()
+    {
+        await this._statsSemaphore.WaitAsync();
+        this.TicksCompleted = 0;
+        this.TicksSkipped = 0;
+        this._statsSemaphore.Release();
     }
 
     /// <summary>

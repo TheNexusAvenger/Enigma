@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
+using Enigma.Core.Diagnostic;
 using Enigma.Core.OpenVr.Model;
 using Enigma.Core.Shim.Output;
 using Enigma.Core.Shim.Window;
@@ -68,6 +69,7 @@ public class RobloxOutput
         if (!this._windowState.IsRobloxFocused())
         {
             this._heartbeatStopwatch.Stop();
+            Logger.Info("Stopping data sending to Roblox client.");
             return;
         }
         
@@ -76,17 +78,20 @@ public class RobloxOutput
         {
             this._heartbeatStopwatch.Start();
             this._keyboard.KeyPress(VirtualKeyCode.F13);
+            Logger.Info("Starting data sending to Roblox client.");
         }
         else if (this._heartbeatStopwatch.ElapsedMilliseconds >= HeartbeatIntervalMilliseconds)
         {
             this._heartbeatStopwatch.Restart();
             this._keyboard.KeyPress(VirtualKeyCode.F13);
+            Logger.Trace("Performing data sending heartbeat to Roblox client.");
         }
         
         // Set the clipboard and send the inputs to update the TextBox.
         await this._clipboard.SetTextAsync(data);
         if (!this._windowState.IsRobloxFocused())
         {
+            Logger.Info("Stopping data sending to Roblox client.");
             return;
         }
         this._keyboard.KeyDown(VirtualKeyCode.LCONTROL);

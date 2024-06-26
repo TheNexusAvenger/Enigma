@@ -9,7 +9,7 @@ namespace Enigma.Core.Test.Loop;
 
 public class BaseLoopTest
 {
-    private class TestableLoop : BaseLoop
+    public class TestableLoop : BaseLoop
     {
         private readonly int _delayMilliseconds;
         
@@ -76,9 +76,9 @@ public class BaseLoopTest
     public void TestTickAsyncSkipMultiple()
     {
         var loop = new TestableLoop(50);
-        var originalAwaitble = loop.TickAsync();
+        var originalAwaitable = loop.TickAsync();
         loop.TickAsync().Wait();
-        originalAwaitble.Wait();
+        originalAwaitable.Wait();
         Assert.That(loop.TicksCompleted, Is.EqualTo(1));
         Assert.That(loop.TicksSkipped, Is.EqualTo(1));
         var stat = Profiler.GetStatAsync("TestableLoop_TickDuration").Result!;
@@ -117,6 +117,22 @@ public class BaseLoopTest
         
         Thread.Sleep(30);
         Assert.That(loop.TicksCompleted, Is.EqualTo(ticksCompleted));
+        Assert.That(loop.TicksSkipped, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void TestResetStatsAsync()
+    {
+        
+        var loop = new TestableLoop(50);
+        var originalAwaitable = loop.TickAsync();
+        loop.TickAsync().Wait();
+        originalAwaitable.Wait();
+        Assert.That(loop.TicksCompleted, Is.EqualTo(1));
+        Assert.That(loop.TicksSkipped, Is.EqualTo(1));
+
+        loop.ResetStatsAsync().Wait();
+        Assert.That(loop.TicksCompleted, Is.EqualTo(0));
         Assert.That(loop.TicksSkipped, Is.EqualTo(0));
     }
 }
