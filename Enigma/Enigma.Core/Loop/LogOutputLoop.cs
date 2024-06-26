@@ -35,7 +35,7 @@ public class LogOutputLoop : BaseLoop
     private void OutputLog(LogSummary logEntry)
     {
         // Log the ticks.
-        if (logEntry.RobloxOutputTicksCompleted == 0 && logEntry.RobloxOutputTicksSkipped == 0) return;
+        if (logEntry.RobloxOutputTicksDataSent == 0 && logEntry.RobloxOutputTicksSkipped == 0) return;
         Logger.Debug($"Roblox client data send tick rate: {logEntry.RobloxOutputTicksCompleted} completed, {logEntry.RobloxOutputTicksSkipped} skipped");
         if (logEntry.RobloxOutputTicksSkipped > 0)
         {
@@ -67,6 +67,7 @@ public class LogOutputLoop : BaseLoop
         {
             RobloxOutputTicksCompleted = this._robloxOutputLoop.TicksCompleted,
             RobloxOutputTicksSkipped = this._robloxOutputLoop.TicksSkipped,
+            RobloxOutputTicksDataSent = (await Profiler.GetStatAsync("PushTrackerDataSentTotal"))?.TotalEvents ?? 0,
             AverageRobloxOutputTimeMilliseconds = (await Profiler.GetStatAsync(this._robloxOutputLoop.ProfilerStatName))?.AverageTime,
             AverageOpenVrReadTimeMilliseconds = (await Profiler.GetStatAsync("OpenVRGetInputs"))?.AverageTime,
             AverageTrackerDataPushTimeMilliseconds =(await Profiler.GetStatAsync("PushTrackerData"))?.AverageTime,

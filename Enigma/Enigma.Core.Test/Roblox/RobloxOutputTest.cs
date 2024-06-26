@@ -30,7 +30,7 @@ public class RobloxOutputTest
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
-        this.RobloxOutput.PushDataAsync("test").Wait();
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.True);
         this.TestClipboard.AssertClipboard("test");
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
@@ -43,7 +43,7 @@ public class RobloxOutputTest
     [Test]
     public void TestPushDataAsyncNotFocused()
     {
-        this.RobloxOutput.PushDataAsync("test").Wait();
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.False);
         this.TestClipboard.AssertClipboard(null);
         this.TestKeyboard.AssertNoEvent();
     }
@@ -52,8 +52,7 @@ public class RobloxOutputTest
     public void TestPushDataAsyncFocusLostAfterClipboardSet()
     {
         this.TestWindowState.AddState("Roblox");
-        this.RobloxOutput.PushDataAsync("test").Wait();
-        this.TestClipboard.AssertClipboard("test");
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.False);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertNoEvent();
     }
@@ -63,8 +62,7 @@ public class RobloxOutputTest
     {
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
-        this.RobloxOutput.PushDataAsync("test").Wait();
-        this.TestClipboard.AssertClipboard("test");
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.False);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.VK_A);
@@ -81,8 +79,7 @@ public class RobloxOutputTest
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
-        this.RobloxOutput.PushDataAsync("test").Wait();
-        this.TestClipboard.AssertClipboard("test");
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.True);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.VK_A);
@@ -90,8 +87,7 @@ public class RobloxOutputTest
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyUp, VirtualKeyCode.LCONTROL);
         this.TestKeyboard.AssertNoEvent();
         
-        this.RobloxOutput.PushDataAsync("test").Wait();
-        this.TestClipboard.AssertClipboard("test");
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.True);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.VK_A);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.VK_V);
@@ -108,8 +104,7 @@ public class RobloxOutputTest
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
-        this.RobloxOutput.PushDataAsync("test").Wait();
-        this.TestClipboard.AssertClipboard("test");
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.True);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.VK_A);
@@ -118,7 +113,7 @@ public class RobloxOutputTest
         this.TestKeyboard.AssertNoEvent();
         Thread.Sleep(RobloxOutput.HeartbeatIntervalMilliseconds + 50);
         
-        this.RobloxOutput.PushDataAsync("test").Wait();
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.True);
         this.TestClipboard.AssertClipboard("test");
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
@@ -144,7 +139,7 @@ public class RobloxOutputTest
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
-        this.RobloxOutput.PushTrackersAsync(trackerInputs).Wait();
+        Assert.That(this.RobloxOutput.PushTrackersAsync(trackerInputs).Result, Is.True);
         this.TestClipboard.AssertClipboard("1|1|1.000|2.000|3.000|0.100|0.200|0.300|0.400|4.000|5.000|6.000");
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);

@@ -53,9 +53,12 @@ public class RobloxOutput
 
     /// <summary>
     /// Pushes a string of text to the Roblox client.
+    /// Due to the method of sending data, it is not guaranteed to work, even if true is returned since some messages
+    /// will paste after the previous one instead of replacing it.
     /// </summary>
     /// <param name="data">String data to push.</param>
-    public async Task PushDataAsync(string data)
+    /// <returns>Whether the data was pushed to the client.</returns>
+    public async Task<bool> PushDataAsync(string data)
     {
         // Return if the window is not focused.
         if (!this._windowState.IsRobloxFocused())
@@ -65,7 +68,7 @@ public class RobloxOutput
                 Logger.Info("Stopping data sending to Roblox client.");
             }
             this._heartbeatStopwatch.Stop();
-            return;
+            return false;
         }
         
         // Send the heartbeat key.
@@ -83,27 +86,30 @@ public class RobloxOutput
         }
         
         // Set the clipboard and send the inputs to update the TextBox.
+        var dataSent = false;
         await this._clipboard.SetTextAsync(data);
         if (!this._windowState.IsRobloxFocused())
         {
             Logger.Info("Stopping data sending to Roblox client.");
-            return;
+            return false;
         }
         this._keyboard.KeyDown(VirtualKeyCode.LCONTROL);
         this._keyboard.KeyPress(VirtualKeyCode.VK_A);
         if (this._windowState.IsRobloxFocused())
         {
             this._keyboard.KeyPress(VirtualKeyCode.VK_V);
+            dataSent = true;
         }
         this._keyboard.KeyUp(VirtualKeyCode.LCONTROL);
+        return dataSent;
     }
 
     /// <summary>
     /// Pushes a list of tracker inputs to the Roblox client.
     /// </summary>
     /// <param name="trackerInputs">Tracker input data to push.</param>
-    public async Task PushTrackersAsync(TrackerInputList trackerInputs)
+    public async Task<bool> PushTrackersAsync(TrackerInputList trackerInputs)
     {
-        await this.PushDataAsync(trackerInputs.Serialize());
+        return await this.PushDataAsync(trackerInputs.Serialize());
     }
 }

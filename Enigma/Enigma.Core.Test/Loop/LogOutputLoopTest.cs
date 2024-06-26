@@ -37,10 +37,12 @@ public class LogOutputLoopTest
         };
         Profiler.AddStatAsync("OpenVRGetInputs", 2).Wait();
         Profiler.AddStatAsync("PushTrackerData", 1).Wait();
+        Profiler.AddStatAsync("PushTrackerDataSentTotal").Wait();
         _logOutputLoop.StepAsync().Wait();
         
         Assert.That(logSummary!.RobloxOutputTicksCompleted, Is.EqualTo(1));
         Assert.That(logSummary!.RobloxOutputTicksSkipped, Is.EqualTo(1));
+        Assert.That(logSummary!.RobloxOutputTicksDataSent, Is.EqualTo(1));
         Assert.That(logSummary!.AverageRobloxOutputTimeMilliseconds, Is.GreaterThan(25));
         Assert.That(logSummary!.AverageRobloxOutputTimeMilliseconds, Is.LessThan(100));
         Assert.That(logSummary!.AverageOpenVrReadTimeMilliseconds, Is.EqualTo(2));
@@ -49,6 +51,7 @@ public class LogOutputLoopTest
         _logOutputLoop.StepAsync().Wait();
         Assert.That(logSummary!.RobloxOutputTicksCompleted, Is.EqualTo(0));
         Assert.That(logSummary!.RobloxOutputTicksSkipped, Is.EqualTo(0));
+        Assert.That(logSummary!.RobloxOutputTicksDataSent, Is.EqualTo(0));
         Assert.That(logSummary!.AverageRobloxOutputTimeMilliseconds, Is.Null);
         Assert.That(logSummary!.AverageOpenVrReadTimeMilliseconds, Is.Null);
         Assert.That(logSummary!.AverageTrackerDataPushTimeMilliseconds, Is.Null);

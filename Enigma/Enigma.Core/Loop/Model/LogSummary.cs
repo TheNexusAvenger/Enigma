@@ -12,6 +12,13 @@ public class LogSummary
     /// Number of skipped ticks for outputting the OpenVR data to Roblox.
     /// </summary>
     public long RobloxOutputTicksSkipped { get; set; } = 0;
+
+    /// <summary>
+    /// Number of ticks that sent data to the Roblox client.
+    /// Compared to RobloxOutputTicksCompleted, RobloxOutputTicksCompleted is for every tick that runs while this
+    /// is only for ticks that sent data (Roblox window is focused).
+    /// </summary>
+    public long RobloxOutputTicksDataSent { get; set; } = 0;
     
     /// <summary>
     /// Average amount of time (in milliseconds) the Roblox output loop tick tick takes.

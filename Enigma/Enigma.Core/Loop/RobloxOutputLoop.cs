@@ -37,9 +37,10 @@ public class RobloxOutputLoop : BaseLoop
         var newInputs = await Profiler.ProfileAsync("OpenVRGetInputs", () => this._openVrInputs.GetInputs());
         
         // Send the OpenVR inputs to the client.
-        await Profiler.ProfileAsync("PushTrackerData", async () =>
+        var dataSent = await Profiler.ProfileAsync("PushTrackerData", Task.Run(async () => await this._robloxOutput.PushTrackersAsync(newInputs)));
+        if (dataSent)
         {
-            await this._robloxOutput.PushTrackersAsync(newInputs);
-        });
+            await Profiler.AddStatAsync("PushTrackerDataSentTotal");
+        }
     }
 }
