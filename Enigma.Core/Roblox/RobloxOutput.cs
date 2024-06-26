@@ -20,6 +20,12 @@ public class RobloxOutput
     /// The last data that was sent to Roblox.
     /// </summary>
     public string LastData { get; private set; } = "";
+
+    /// <summary>
+    /// The last data that was requested to be sent to Roblox.
+    /// This is not guaranteed to be the last data that was successfully sent.
+    /// </summary>
+    public string LastRequestedData { get; private set; } = "";
     
     /// <summary>
     /// Keyboard to send key inputs with.
@@ -70,6 +76,7 @@ public class RobloxOutput
         {
             return true;
         }
+        this.LastRequestedData = data;
         
         // Return if the window is not focused.
         if (!this._windowState.IsRobloxFocused())

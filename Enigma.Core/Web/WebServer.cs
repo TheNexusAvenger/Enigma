@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
-using Enigma.Core.OpenVr;
 using Enigma.Core.Roblox;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -21,19 +20,19 @@ public class WebServer
     private readonly RobloxStudioState _robloxStudioState;
 
     /// <summary>
-    /// Handler for OpenVR inputs.
+    /// Roblox Output to read data from.
     /// </summary>
-    private readonly OpenVrInputs _openVrInputs;
+    private readonly RobloxOutput _robloxOutput;
 
     /// <summary>
     /// Creates a web server.
     /// </summary>
     /// <param name="robloxStudioState">Roblox Studio state to set when the app connects.</param>
-    /// <param name="openVrInputs">Handler for OpenVR inputs.</param>
-    public WebServer(RobloxStudioState robloxStudioState, OpenVrInputs openVrInputs)
+    /// <param name="robloxOutput">Roblox output to read data from.</param>
+    public WebServer(RobloxStudioState robloxStudioState, RobloxOutput robloxOutput)
     {
         this._robloxStudioState = robloxStudioState;
-        this._openVrInputs = openVrInputs;
+        this._robloxOutput = robloxOutput;
     }
     
     /// <summary>
@@ -68,7 +67,7 @@ public class WebServer
         // Build the API.
         var enigmaApi = app.MapGroup("/enigma");
         enigmaApi.MapGet("/status", () => "UP");
-        enigmaApi.MapGet("/data", () => this._openVrInputs.GetInputs().Serialize());
+        enigmaApi.MapGet("/data", () => this._robloxOutput.LastRequestedData);
         enigmaApi.MapPost("/heartbeat", () =>
         {
             this._robloxStudioState.HeartbeatSent();

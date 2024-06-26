@@ -68,7 +68,7 @@ public class AppInstances
         // Create the inputs and outputs.
         this.OpenVrInputs = new OpenVrInputs();
         this.RobloxOutput = new RobloxOutput(this.Keyboard, this.Clipboard, this.WindowState);
-        this.WebServer = new WebServer(this.RobloxStudioState, this.OpenVrInputs);
+        this.WebServer = new WebServer(this.RobloxStudioState, this.RobloxOutput);
         
         // Create the loops.
         this.RobloxOutputLoop = new RobloxOutputLoop(this.OpenVrInputs, this.RobloxOutput);
