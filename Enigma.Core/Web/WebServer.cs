@@ -39,12 +39,16 @@ public class WebServer
     /// <summary>
     /// Starts the web server.
     /// </summary>
-    public void Start()
+    /// <param name="addNexusLogging">Whether to add the logger for ASP.NET.</param>
+    public void Start(bool addNexusLogging)
     {
         // Create the app builder with custom logging.
         var builder = WebApplication.CreateSlimBuilder();
         builder.Logging.ClearProviders();
-        // TODO: Make option. builder.Logging.AddProvider(Logger.NexusLogger);
+        if (addNexusLogging)
+        {
+            builder.Logging.AddProvider(Logger.NexusLogger);
+        }
         
         // Set up custom exception handling.
         var app = builder.Build();

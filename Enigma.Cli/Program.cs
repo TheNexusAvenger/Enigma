@@ -23,6 +23,11 @@ public class Program
     public static readonly Option<bool> TraceOption = new Option<bool>("--trace", "Enables debug and trace logging.");
     
     /// <summary>
+    /// Command option for enabling logging for ASP.NET Core.
+    /// </summary>
+    public static readonly Option<bool> HttpDebugLogging = new Option<bool>("--debug-http", "Enables logging for the ASP.NET Core HTTP server used by the Roblox Studio companion app.");
+
+    /// <summary>
     /// Runs the program.
     /// </summary>
     /// <param name="args">Arguments from the command line.</param>
@@ -31,6 +36,7 @@ public class Program
         var rootCommand = new RootCommand(description: "Provides SteamVR tracker data to the Roblox client.");
         rootCommand.AddOption(DebugOption);
         rootCommand.AddOption(TraceOption);
+        rootCommand.AddOption(HttpDebugLogging);
         rootCommand.SetHandler(Run);
         return await rootCommand.InvokeAsync(args);
     }
@@ -53,10 +59,18 @@ public class Program
             Logger.Debug("Enabled debug logging.");
         }
         
+        // Check if logging should be added to ASP.NET.
+        var aspNetLoggingEnabled = false;
+        if (invocationContext.ParseResult.GetValueForOption(HttpDebugLogging))
+        {
+            aspNetLoggingEnabled = true;
+            Logger.Debug("Enabled ASP.NET Core logging.");
+        }
+        
         // Start the application.
         var appInstances = new AppInstances();
         await appInstances.OpenVrInputs.InitializeOpenVrAsync();
-        appInstances.WebServer.Start();
+        appInstances.WebServer.Start(aspNetLoggingEnabled);
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();
         Logger.Info("Started Enigma. Make sure a Roblox client or Roblox Studio window is focused.");
