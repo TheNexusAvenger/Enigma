@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Enigma.Core.Roblox;
 using Enigma.Core.Shim.Window;
 
 namespace Enigma.Core.Test.TestShim;
@@ -10,6 +11,15 @@ public class TestWindowState : BaseWindowState
     /// </summary>
     private readonly List<string> _windowStateQueue = new List<string>();
 
+    /// <summary>
+    /// Creates a test base window state.
+    /// </summary>
+    /// <param name="robloxStudioState">Roblox Studio state to use.</param>
+    public TestWindowState(RobloxStudioState robloxStudioState) : base(robloxStudioState)
+    {
+        
+    }
+    
     /// <summary>
     /// Pushes a window state.
     /// </summary>

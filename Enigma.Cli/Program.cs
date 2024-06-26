@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Enigma.Core;
 using Enigma.Core.Diagnostic;
+using Enigma.Core.Web;
 using Microsoft.Extensions.Logging;
 
 namespace Enigma.Cli;
@@ -55,6 +56,7 @@ public class Program
         // Start the application.
         var appInstances = new AppInstances();
         await appInstances.OpenVrInputs.InitializeOpenVrAsync();
+        appInstances.WebServer.Start();
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();
         Logger.Info("Started Enigma. Make sure a Roblox client or Roblox Studio window is focused.");

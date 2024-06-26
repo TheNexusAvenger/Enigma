@@ -11,6 +11,7 @@ namespace Enigma.Core.Test.Roblox;
 public class RobloxOutputTest
 {
     public TestKeyboard TestKeyboard;
+    public RobloxStudioState RobloxStudioState;
     public TestClipboard TestClipboard;
     public TestWindowState TestWindowState;
     public RobloxOutput RobloxOutput;
@@ -19,7 +20,8 @@ public class RobloxOutputTest
     public void SetUp()
     {
         TestKeyboard = new TestKeyboard();
-        TestWindowState = new TestWindowState();
+        RobloxStudioState = new RobloxStudioState();
+        TestWindowState = new TestWindowState(RobloxStudioState);
         TestClipboard = new TestClipboard();
         RobloxOutput = new RobloxOutput(this.TestKeyboard, this.TestClipboard, this.TestWindowState);
     }
@@ -43,6 +45,18 @@ public class RobloxOutputTest
     [Test]
     public void TestPushDataAsyncNotFocused()
     {
+        Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.False);
+        this.TestClipboard.AssertClipboard(null);
+        this.TestKeyboard.AssertNoEvent();
+    }
+
+    [Test]
+    public void TestPushDataAsyncRobloxStudioConnected()
+    {
+        this.TestWindowState.AddState("Roblox Studio");
+        this.TestWindowState.AddState("Roblox Studio");
+        this.TestWindowState.AddState("Roblox Studio");
+        RobloxStudioState.HeartbeatSent();
         Assert.That(this.RobloxOutput.PushDataAsync("test").Result, Is.False);
         this.TestClipboard.AssertClipboard(null);
         this.TestKeyboard.AssertNoEvent();

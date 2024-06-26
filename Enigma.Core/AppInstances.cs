@@ -3,6 +3,7 @@ using Enigma.Core.OpenVr;
 using Enigma.Core.Roblox;
 using Enigma.Core.Shim.Output;
 using Enigma.Core.Shim.Window;
+using Enigma.Core.Web;
 
 namespace Enigma.Core;
 
@@ -19,6 +20,11 @@ public class AppInstances
     public readonly IKeyboard Keyboard;
 
     /// <summary>
+    /// Roblox Studio state instance used by the application.
+    /// </summary>
+    public readonly RobloxStudioState RobloxStudioState;
+
+    /// <summary>
     /// Window state instance used by the application.
     /// </summary>
     public readonly BaseWindowState WindowState;
@@ -32,6 +38,11 @@ public class AppInstances
     /// Handler for pushing data to Roblox.
     /// </summary>
     public readonly RobloxOutput RobloxOutput;
+
+    /// <summary>
+    /// Web server instance used by the application.
+    /// </summary>
+    public readonly WebServer WebServer;
     
     /// <summary>
     /// Log output loop instance used by the application.
@@ -51,11 +62,13 @@ public class AppInstances
         // Create the shims.
         this.Clipboard = new Clipboard();
         this.Keyboard = new Keyboard();
-        this.WindowState = new WindowsWindowState();
+        this.RobloxStudioState = new RobloxStudioState();
+        this.WindowState = new WindowsWindowState(this.RobloxStudioState);
         
         // Create the inputs and outputs.
         this.OpenVrInputs = new OpenVrInputs();
         this.RobloxOutput = new RobloxOutput(this.Keyboard, this.Clipboard, this.WindowState);
+        this.WebServer = new WebServer(this.RobloxStudioState, this.OpenVrInputs);
         
         // Create the loops.
         this.RobloxOutputLoop = new RobloxOutputLoop(this.OpenVrInputs, this.RobloxOutput);

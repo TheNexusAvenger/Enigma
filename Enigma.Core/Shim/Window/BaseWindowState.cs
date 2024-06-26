@@ -1,9 +1,24 @@
 ﻿using System.Linq;
+using Enigma.Core.Roblox;
 
 namespace Enigma.Core.Shim.Window;
 
 public abstract class BaseWindowState
 {
+    /// <summary>
+    /// Roblox Studio state to check for.
+    /// </summary>
+    private readonly RobloxStudioState _robloxStudioState;
+
+    /// <summary>
+    /// Creates a base window state.
+    /// </summary>
+    /// <param name="robloxStudioState">Roblox Studio state to use.</param>
+    public BaseWindowState(RobloxStudioState robloxStudioState)
+    {
+        this._robloxStudioState = robloxStudioState;
+    }
+    
     /// <summary>
     /// Returns if Roblox is focused.
     /// </summary>
@@ -15,10 +30,11 @@ public abstract class BaseWindowState
         if (focusedWindowName == null) return false;
         if (!focusedWindowName.Contains("Roblox")) return false;
         
-        // Return false for Roblox Studio with 2 dashes.
+        // Return false for Roblox Studio with 2 dashes or the companion plugin is active.
         // Currently, this means a script is open.
         if (focusedWindowName.EndsWith("Roblox Studio"))
         {
+            if (this._robloxStudioState.IsRobloxStudioConnected()) return false;
             return focusedWindowName.ToCharArray().Count(character => character == '-') <= 1;
         }
         

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Enigma.Core.Roblox;
 
 namespace Enigma.Core.Shim.Window;
 
@@ -17,6 +18,15 @@ public class WindowsWindowState : BaseWindowState
     /// </summary>
     [DllImport("user32.dll")]
     private static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+    
+    /// <summary>
+    /// Creates a Windows-specific base window state.
+    /// </summary>
+    /// <param name="robloxStudioState">Roblox Studio state to use.</param>
+    public WindowsWindowState(RobloxStudioState robloxStudioState) : base(robloxStudioState)
+    {
+        
+    }
     
     /// <summary>
     /// Returns the current active window title.

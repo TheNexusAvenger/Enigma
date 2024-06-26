@@ -10,7 +10,7 @@ public class Logger
     /// <summary>
     /// Static instance of the logger.
     /// </summary>
-    private static readonly Nexus.Logging.Logger NexusLogger = new Nexus.Logging.Logger();
+    public static readonly Nexus.Logging.Logger NexusLogger = new Nexus.Logging.Logger();
 
     /// <summary>
     /// Static instance of the console output.
