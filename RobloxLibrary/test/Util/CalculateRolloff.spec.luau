@@ -12,7 +12,7 @@ return function()
             expect(CalculateRolloff(1, 2, 1)).to.equal(1)
         end)
 
-        it("should roll off as the input gets too high..", function()
+        it("should roll off as the input gets too high.", function()
             expect(CalculateRolloff(1, 2, 2)).to.equal(1.5)
             expect(CalculateRolloff(1, 2, 3)).to.equal(2)
             expect(CalculateRolloff(1, 2, 4)).to.equal(2)
