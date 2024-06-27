@@ -69,6 +69,9 @@ for platform in PLATFORMS:
             print("Build for " + projectName + " failed and will not be created.")
             continue
         
+        # Copy the companion plugin.
+        shutil.copyfile("./bin/EnigmaCompanionPlugin.rbxmx", outputDirectory + "/EnigmaCompanionPlugin.rbxmx")
+        
         # Rename the executables.
         sourceExecutablePath = outputDirectory + "/" + sourceExecutable
         targetExecutablePath = outputDirectory + "/" + targetExecutable

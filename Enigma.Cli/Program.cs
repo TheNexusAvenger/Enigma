@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Enigma.Core;
 using Enigma.Core.Diagnostic;
+using Enigma.Core.Roblox;
 using Enigma.Core.Web;
 using Microsoft.Extensions.Logging;
 
@@ -66,6 +67,9 @@ public class Program
             aspNetLoggingEnabled = true;
             Logger.Debug("Enabled ASP.NET Core logging.");
         }
+        
+        // Copy the plugin.
+        await RobloxPlugins.CopyPluginAsync();
         
         // Start the application.
         var appInstances = new AppInstances();
