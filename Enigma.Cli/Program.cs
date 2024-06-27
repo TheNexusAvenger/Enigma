@@ -1,80 +1,31 @@
-﻿using System.CommandLine.Invocation;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Enigma.Core;
 using Enigma.Core.Diagnostic;
-using Enigma.Core.Roblox;
-using Enigma.Core.Web;
-using Microsoft.Extensions.Logging;
+using Enigma.Core.Program;
 
 namespace Enigma.Cli;
 
-using System.CommandLine;
-
-public class Program
+public class Program : BaseProgram
 {
-    /// <summary>
-    /// Command option for enabling debug logging.
-    /// </summary>
-    public static readonly Option<bool> DebugOption = new Option<bool>("--debug", "Enables debug logging.");
-    
-    /// <summary>
-    /// Command option for enabling trace and debug logging.
-    /// </summary>
-    public static readonly Option<bool> TraceOption = new Option<bool>("--trace", "Enables debug and trace logging.");
-    
-    /// <summary>
-    /// Command option for enabling logging for ASP.NET Core.
-    /// </summary>
-    public static readonly Option<bool> HttpDebugLogging = new Option<bool>("--debug-http", "Enables logging for the ASP.NET Core HTTP server used by the Roblox Studio companion app.");
-
     /// <summary>
     /// Runs the program.
     /// </summary>
     /// <param name="args">Arguments from the command line.</param>
     public static async Task<int> Main(string[] args)
     {
-        var rootCommand = new RootCommand(description: "Provides SteamVR tracker data to the Roblox client.");
-        rootCommand.AddOption(DebugOption);
-        rootCommand.AddOption(TraceOption);
-        rootCommand.AddOption(HttpDebugLogging);
-        rootCommand.SetHandler(Run);
-        return await rootCommand.InvokeAsync(args);
+        var program = new Program();
+        return await program.RunMainAsync(args);
     }
 
     /// <summary>
-    /// Runs the application with parsed command line arguments.
+    /// Runs the application after the common setup has completed.
     /// </summary>
-    /// <param name="invocationContext">Context for the command line options.</param>
-    public static async Task Run(InvocationContext invocationContext)
+    public override async Task RunAsync()
     {
-        // Set the log level.
-        if (invocationContext.ParseResult.GetValueForOption(TraceOption))
-        {
-            Logger.SetMinimumLogLevel(LogLevel.Trace);
-            Logger.Debug("Enabled trace and debug logging.");
-        }
-        else if (invocationContext.ParseResult.GetValueForOption(DebugOption))
-        {
-            Logger.SetMinimumLogLevel(LogLevel.Debug);
-            Logger.Debug("Enabled debug logging.");
-        }
-        
-        // Check if logging should be added to ASP.NET.
-        var aspNetLoggingEnabled = false;
-        if (invocationContext.ParseResult.GetValueForOption(HttpDebugLogging))
-        {
-            aspNetLoggingEnabled = true;
-            Logger.Debug("Enabled ASP.NET Core logging.");
-        }
-        
-        // Copy the plugin.
-        await RobloxPlugins.CopyPluginAsync();
-        
         // Start the application.
         var appInstances = new AppInstances();
         await appInstances.OpenVrInputs.InitializeOpenVrAsync();
-        appInstances.WebServer.Start(aspNetLoggingEnabled);
+        appInstances.WebServer.Start(this.AspNetLoggingEnabled);
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();
         Logger.Info("Started Enigma. Make sure a Roblox client or Roblox Studio window is focused.");

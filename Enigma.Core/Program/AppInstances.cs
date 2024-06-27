@@ -5,7 +5,7 @@ using Enigma.Core.Shim.Output;
 using Enigma.Core.Shim.Window;
 using Enigma.Core.Web;
 
-namespace Enigma.Core;
+namespace Enigma.Core.Program;
 
 public class AppInstances
 {

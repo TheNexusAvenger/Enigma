@@ -10,6 +10,7 @@
       <PackageReference Include="InputSimulatorStandard" Version="1.0.0" />
       <PackageReference Include="Nexus.Logging" Version="1.3.0" />
       <PackageReference Include="OVRSharp" Version="1.2.0" />
+      <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
       <PackageReference Include="TextCopy" Version="6.2.1" />
     </ItemGroup>
 
