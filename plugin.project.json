@@ -1,0 +1,6 @@
+{
+    "name": "Enigma-Plugin",
+    "tree": {
+        "$path": "./RobloxPlugin/src"
+    }
+}
