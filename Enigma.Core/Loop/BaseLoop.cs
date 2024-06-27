@@ -77,10 +77,7 @@ public abstract class BaseLoop
         // Perform the tick.
         try
         {
-            await Profiler.ProfileAsync(this.ProfilerStatName, () =>
-            {
-                StepAsync().Wait();
-            });
+            await Profiler.ProfileAsync(this.ProfilerStatName, StepAsync());
         }
         catch (Exception ex)
         {
