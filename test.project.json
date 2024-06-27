@@ -6,6 +6,9 @@
             "$className": "ReplicatedStorage",
             "Enigma": {
                 "$path": "."
+            },
+            "EnigmaComapionPlugin": {
+                "$path": "./RobloxPlugin/src/"
             }
         }
     }
