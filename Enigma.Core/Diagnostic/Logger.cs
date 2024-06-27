@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Nexus.Logging.Attribute;
 using Nexus.Logging.Output;
@@ -45,8 +46,7 @@ public class Logger
     [LogTraceIgnore]
     public static void Trace(object content)
     {
-        // TODO: Add Trace to Nexus Logging.
-        NexusLogger.Log(content, LogLevel.Trace);
+        NexusLogger.Trace(content);
     }
     
     /// <summary>
