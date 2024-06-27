@@ -10,6 +10,11 @@
             "EnigmaComapionPlugin": {
                 "$path": "./RobloxPlugin/src/"
             }
+        },
+        "TestService": {
+            "Enigma.spec": {
+                "$path": "./RobloxLibrary/test/"
+            }
         }
     }
 }
