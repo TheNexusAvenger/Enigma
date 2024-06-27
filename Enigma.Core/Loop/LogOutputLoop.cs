@@ -9,6 +9,12 @@ namespace Enigma.Core.Loop;
 public class LogOutputLoop : BaseLoop
 {
     /// <summary>
+    /// Percent of ticks to be skipped before the skipped ticks is a warn.
+    /// Even with no logic running, loops commonly skip 1 tick.
+    /// </summary>
+    public const float SkippedTicksWarnPercent = 0.4f;
+
+    /// <summary>
     /// Event for when a log entry is created.
     /// </summary>
     public event Action<LogSummary> LogEntryCreated;
@@ -39,7 +45,15 @@ public class LogOutputLoop : BaseLoop
         Logger.Debug($"Roblox client data send tick rate: {logEntry.RobloxOutputTicksCompleted} completed, {logEntry.RobloxOutputTicksSkipped} skipped");
         if (logEntry.RobloxOutputTicksSkipped > 0)
         {
-            Logger.Warn($"Skipped {logEntry.RobloxOutputTicksSkipped} ticks when sending data. This might happen when a previous data send took too long.");
+            var skippedMessage = $"Skipped {logEntry.RobloxOutputTicksSkipped} ticks when sending data. This might happen when a previous data send took too long.";
+            if (((float) logEntry.RobloxOutputTicksSkipped / (logEntry.RobloxOutputTicksCompleted + logEntry.RobloxOutputTicksSkipped)) >= SkippedTicksWarnPercent)
+            {
+                Logger.Warn(skippedMessage);
+            }
+            else
+            {
+                Logger.Debug(skippedMessage);
+            }
         }
         
         // Log the time.
