@@ -25,6 +25,7 @@ public class Program : BaseProgram
         // Start the application.
         var appInstances = new AppInstances();
         await appInstances.OpenVrInputs.InitializeOpenVrAsync();
+        appInstances.SteamVrSettingsState.ConnectReloading();
         appInstances.WebServer.Start(this.AspNetLoggingEnabled);
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();

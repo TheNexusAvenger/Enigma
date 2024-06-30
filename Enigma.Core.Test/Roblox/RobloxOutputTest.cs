@@ -179,6 +179,7 @@ public class RobloxOutputTest
         {
             new TrackerInput()
             {
+                TrackerRole = TrackerRole.LeftShoulder,
                 Position = new Vector3(1, 2, 3),
                 Rotation = new Quaternion(0.1f, 0.2f, 0.3f, 0.4f),
                 Velocity = new Vector3(4, 5, 6),
@@ -189,8 +190,8 @@ public class RobloxOutputTest
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
         Assert.That(this.RobloxOutput.PushTrackersAsync(trackerInputs).Result, Is.True);
-        Assert.That(this.RobloxOutput.LastData, Is.EqualTo("1|1|1.000|2.000|3.000|0.100|0.200|0.300|0.400|4.000|5.000|6.000"));
-        this.TestClipboard.AssertClipboard("1|1|1.000|2.000|3.000|0.100|0.200|0.300|0.400|4.000|5.000|6.000");
+        Assert.That(this.RobloxOutput.LastData, Is.EqualTo("1|1|4|1.000|2.000|3.000|0.100|0.200|0.300|0.400|4.000|5.000|6.000"));
+        this.TestClipboard.AssertClipboard("1|1|4|1.000|2.000|3.000|0.100|0.200|0.300|0.400|4.000|5.000|6.000");
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.VK_A);

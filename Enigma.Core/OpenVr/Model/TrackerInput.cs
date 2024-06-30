@@ -14,6 +14,11 @@ public class TrackerInput
     /// Type of the device.
     /// </summary>
     public ETrackedDeviceClass DeviceType { get; set; }
+    
+    /// <summary>
+    /// Role of the tracker.
+    /// </summary>
+    public TrackerRole TrackerRole { get; set; }
 
     /// <summary>
     /// Position of the tracker input relative to the headset.

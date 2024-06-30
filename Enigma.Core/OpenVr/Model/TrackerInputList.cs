@@ -24,6 +24,7 @@ public class TrackerInputList : List<TrackerInput>
         // Store the inputs.
         foreach (var input in this)
         {
+            serializer.Add((int) input.TrackerRole);
             serializer.AddVector3(input.Position);
             serializer.AddQuaternion(input.Rotation);
             serializer.AddVector3(input.Velocity);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Text;
 using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
 using Enigma.Core.Extension;
@@ -18,11 +19,25 @@ public class OpenVrInputs
     /// TODO: Hard-coding this seems bad. Maybe find a way to dynamically determine this?
     /// </summary>
     public const int DevicesToCheck = 32;
+
+    /// <summary>
+    /// State of the SteamVR settings to read tracker roles.
+    /// </summary>
+    private readonly SteamVrSettingsState _steamVrSettingsState;
     
     /// <summary>
     /// Instance of the OpenVR system for reading inputs.
     /// </summary>
     private CVRSystem? _ovrSystem;
+
+    /// <summary>
+    /// Creates a OpenVR inputs reader.
+    /// </summary>
+    /// <param name="steamVrSettingsState">State of the SteamVR settings to read tracker roles.</param>
+    public OpenVrInputs(SteamVrSettingsState steamVrSettingsState)
+    {
+        this._steamVrSettingsState = steamVrSettingsState;
+    }
 
     /// <summary>
     /// Initializes OpenVR. Yields for it to be initialized.
@@ -39,7 +54,7 @@ public class OpenVrInputs
             }
             catch (OpenVRSystemException<EVRInitError>)
             {
-                // Log the message if it is the first time, and wait to retyr.
+                // Log the message if it is the first time, and wait to retry.
                 if (waitMessageLogged == false)
                 {
                     waitMessageLogged = true;
@@ -54,6 +69,27 @@ public class OpenVrInputs
         {
             Logger.Debug("OpenVR headset detected.");
         }
+    }
+
+    /// <summary>
+    /// Returns the value of a string property. Null is returned if the property had an error reading.
+    /// </summary>
+    /// <param name="trackerIndex">Index of the tracker to get the value of.</param>
+    /// <param name="property">Property to try tor ead.</param>
+    /// <returns>The value for the property, if it exists.</returns>
+    private string? GetTrackerStringProperty(uint trackerIndex, ETrackedDeviceProperty property)
+    {
+        // Throw an exception if OpenVR is not initialized.
+        if (this._ovrSystem == null)
+        {
+            throw new InvalidOperationException("OpenVR is not initialized.");
+        }
+        
+        // Build and return the message if it was a success.
+        var error = ETrackedPropertyError.TrackedProp_Success;
+        var propertyBuilder = new StringBuilder();
+        this._ovrSystem.GetStringTrackedDeviceProperty(trackerIndex, property, propertyBuilder, 128, ref error);
+        return error == ETrackedPropertyError.TrackedProp_Success ? propertyBuilder.ToString() : null;
     }
     
     /// <summary>
@@ -80,15 +116,24 @@ public class OpenVrInputs
             var inputType = this._ovrSystem.GetTrackedDeviceClass(i);
             if (inputType == ETrackedDeviceClass.HMD)
             {
+                // Store the index of the headset.
                 headsetId = i;
             }
-            else if (inputType == ETrackedDeviceClass.Controller || inputType == ETrackedDeviceClass.GenericTracker)
+            else if (inputType == ETrackedDeviceClass.GenericTracker)
             {
-                // TODO: Add properties from ETrackedDeviceProperty.
+                // Get the tracker information.
+                var trackingSystem = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_TrackingSystemName_String);
+                if (trackingSystem == null) continue;
+                var serialNumber = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_SerialNumber_String);
+                if (serialNumber == null) continue;
+                var trackerRole = this._steamVrSettingsState.GetRole(trackingSystem, serialNumber);
+                
+                // Add the tracker information.
                 trackerInputs.Add(new TrackerInput()
                 {
                     DeviceId = i,
                     DeviceType = inputType,
+                    TrackerRole = trackerRole,
                 });
             }
         }

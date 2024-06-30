@@ -30,6 +30,11 @@ public class AppInstances
     public readonly BaseWindowState WindowState;
 
     /// <summary>
+    /// Handler for reading SteamVR settings.
+    /// </summary>
+    public readonly SteamVrSettingsState SteamVrSettingsState;
+
+    /// <summary>
     /// Handler for reading OpenVR inputs.
     /// </summary>
     public readonly OpenVrInputs OpenVrInputs;
@@ -66,7 +71,8 @@ public class AppInstances
         this.WindowState = new WindowsWindowState(this.RobloxStudioState);
         
         // Create the inputs and outputs.
-        this.OpenVrInputs = new OpenVrInputs();
+        this.SteamVrSettingsState = SteamVrSettingsState.GetState();
+        this.OpenVrInputs = new OpenVrInputs(this.SteamVrSettingsState);
         this.RobloxOutput = new RobloxOutput(this.Keyboard, this.Clipboard, this.WindowState);
         this.WebServer = new WebServer(this.RobloxStudioState, this.RobloxOutput);
         
