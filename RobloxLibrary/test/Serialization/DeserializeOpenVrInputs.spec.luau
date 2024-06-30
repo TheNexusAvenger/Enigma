@@ -1,17 +1,17 @@
---Tests DeserializerOpenVrInputs.
+--Tests DeserializeOpenVrInputs.
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DeserializerOpenVrInputs = require(ReplicatedStorage.Enigma.Serialization.DeserializerOpenVrInputs)
+local DeserializeOpenVrInputs = require(ReplicatedStorage.Enigma.Serialization.DeserializeOpenVrInputs)
 
 return function()
-    describe("The DeserializerOpenVrInputs function", function()
+    describe("The DeserializeOpenVrInputs function", function()
         it("should return 0 inputs.", function()
-            expect(#DeserializerOpenVrInputs("1|0")).to.equal(0)
+            expect(#DeserializeOpenVrInputs("1|0")).to.equal(0)
         end)
 
         it("should return multiple inputs.", function()
-            local Inputs = DeserializerOpenVrInputs("1|2|0|1|2|3|4|5|6|7|8|9|10|4|11|12|13|14|15|16|17|18|19|20")
+            local Inputs = DeserializeOpenVrInputs("1|2|0|1|2|3|4|5|6|7|8|9|10|4|11|12|13|14|15|16|17|18|19|20")
             expect(#Inputs).to.equal(2)
             expect(Inputs[1].TrackerRole).to.equal("None")
             expect(Inputs[1].HeadRelativeCFrame.X).to.equal(1)
