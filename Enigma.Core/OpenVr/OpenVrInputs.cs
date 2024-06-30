@@ -109,39 +109,29 @@ public class OpenVrInputs
         this._ovrSystem.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, 0, poseArray);
         
         // Get the ids.
-        uint headsetId = 0;
         var trackerInputs = new TrackerInputList();
         for (uint i = 0; i < DevicesToCheck; i++)
         {
+            // Return if the device is not at tracker.
             var inputType = this._ovrSystem.GetTrackedDeviceClass(i);
-            if (inputType == ETrackedDeviceClass.HMD)
+            if (inputType != ETrackedDeviceClass.GenericTracker) continue;
+            
+            // Get the tracker information.
+            if (!this._ovrSystem.IsTrackedDeviceConnected(i)) continue;
+            var trackingSystem = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_TrackingSystemName_String);
+            if (trackingSystem == null) continue;
+            var serialNumber = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_SerialNumber_String);
+            if (serialNumber == null) continue;
+            var trackerRole = this._steamVrSettingsState.GetRole(trackingSystem, serialNumber);
+            
+            // Add the tracker information.
+            trackerInputs.Add(new TrackerInput()
             {
-                // Store the index of the headset.
-                headsetId = i;
-            }
-            else if (inputType == ETrackedDeviceClass.GenericTracker)
-            {
-                // Get the tracker information.
-                if (!this._ovrSystem.IsTrackedDeviceConnected(i)) continue;
-                var trackingSystem = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_TrackingSystemName_String);
-                if (trackingSystem == null) continue;
-                var serialNumber = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_SerialNumber_String);
-                if (serialNumber == null) continue;
-                var trackerRole = this._steamVrSettingsState.GetRole(trackingSystem, serialNumber);
-                
-                // Add the tracker information.
-                trackerInputs.Add(new TrackerInput()
-                {
-                    DeviceId = i,
-                    DeviceType = inputType,
-                    TrackerRole = trackerRole,
-                });
-            }
+                DeviceId = i,
+                DeviceType = inputType,
+                TrackerRole = trackerRole,
+            });
         }
-        
-        // Get the headset pose.
-        var headPose = poseArray[headsetId].mDeviceToAbsoluteTracking.ToMatrix4x4();
-        var headRotation = Quaternion.CreateFromRotationMatrix(headPose).FlipHandedness();
         
         // Add the relative tracker positions.
         foreach (var input in trackerInputs)
@@ -150,9 +140,9 @@ public class OpenVrInputs
             var trackerPose = trackerPoseData.mDeviceToAbsoluteTracking.ToMatrix4x4();
             var trackerRotation = Quaternion.CreateFromRotationMatrix(trackerPose).FlipHandedness();
             var trackerVelocity = new Vector3(trackerPoseData.vVelocity.v0, trackerPoseData.vVelocity.v1, trackerPoseData.vVelocity.v2);
-            input.Rotation = Quaternion.Inverse(headRotation) * trackerRotation;
-            input.Position = Vector3.Transform(trackerPose.Translation - headPose.Translation, Quaternion.Inverse(headRotation)).ConvertMetersToFeet();
-            input.Velocity = Vector3.Transform(trackerVelocity, Quaternion.Inverse(headRotation)).ConvertMetersToFeet();
+            input.Rotation = trackerRotation;
+            input.Position = trackerPose.Translation.ConvertMetersToFeet();
+            input.Velocity = trackerVelocity.ConvertMetersToFeet();
         }
         
         // Return the inputs.
