@@ -116,7 +116,9 @@ end
 if plugin:GetSetting("Enigma_LastVersionWith500RequestLimit") == RobloxVersion then
     TooManyRequestsReached = true
     DATA_LOOP_DELAY = DATA_LOOP_FALLBACK_DELAY
-    warn(`[Enigma] Based on a previous run, replication will be limited to 8hz for version Roblox Studio version {RobloxVersion}. Bug report for this limitation: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079`)
+    if RunService:IsRunMode() then
+        warn(`[Enigma] Based on a previous run, replication will be limited to 8hz for version Roblox Studio version {RobloxVersion}. Bug report for this limitation: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079`)
+    end
 end
 
 --Clear total requests every minute.
