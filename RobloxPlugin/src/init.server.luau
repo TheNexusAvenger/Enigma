@@ -15,6 +15,7 @@ local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 
 local DataFetchLoopActive = false
+local SentRequests = 0
 
 
 
@@ -27,6 +28,7 @@ local function SendHttpRequest(Url: string, Method: string): string
         Url = Url,
         Method = Method,
     })
+    SentRequests += 1
     if not Response.Success then
         local Message = `[Enigma] Response was HTTP {Response.StatusCode} from {Method} {Url}: {Response.Body}`
         warn(Message)
@@ -43,7 +45,7 @@ local function SendHeartbeatRequest(): boolean
         SendHttpRequest(ENIMGA_HEARTBEAT_URL, "POST")
     end)
     if not Worked and Message == "Number of requests exceeded limit" then
-        warn("[Enigma] Number of HTTP service requests exceeded. The refresh rate must be decreased.")
+        warn(`[Enigma] Number of HTTP service requests exceeded ({SentRequests} requests completed). The refresh rate must be decreased.`)
     end
     return Worked
 end
@@ -87,6 +89,14 @@ local function StartDataFetch(): ()
 end
 
 
+
+--Clear total requests every minute.
+task.spawn(function()
+    while true do
+        SentRequests = 0
+        task.wait(60)
+    end
+end)
 
 --Start the heartbeat loop.
 while true do
