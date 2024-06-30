@@ -122,6 +122,7 @@ public class OpenVrInputs
             else if (inputType == ETrackedDeviceClass.GenericTracker)
             {
                 // Get the tracker information.
+                if (!this._ovrSystem.IsTrackedDeviceConnected(i)) continue;
                 var trackingSystem = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_TrackingSystemName_String);
                 if (trackingSystem == null) continue;
                 var serialNumber = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_SerialNumber_String);
