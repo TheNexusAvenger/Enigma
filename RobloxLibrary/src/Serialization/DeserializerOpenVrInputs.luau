@@ -14,13 +14,14 @@ return function(Data: string): {RawOpenVRInput}
     --Prepare the deserialziation and check the protocol version.
     local Deserializer = StringDeserializer.new(Data)
     local ProcotolVersion = Deserializer:ReadNumber()
+    local TotalTrackers = Deserializer:ReadNumber()
     if ProcotolVersion ~= 1 then
         warn(`Enigma protocol version {ProcotolVersion} is unsupported and might not work as expected. Supported versions: 1`)
     end
 
     --Read the inputs.
     local RawInputs = {}
-    for i = 1, Deserializer:ReadNumber() do
+    for i = 1, TotalTrackers do
         local Role = TrackerRole[Deserializer:ReadNumber() + 1] or "Unsupported" --Protocol starts counting at 0, but Lua starts at 1.
         local Position = Deserializer:ReadVector3()
         local Rotation = Deserializer:ReadQuaternion()
