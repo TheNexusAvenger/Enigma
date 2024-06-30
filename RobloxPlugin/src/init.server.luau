@@ -3,7 +3,7 @@
 --This plugin relies on the HttpService on the local host to transfer data instead.
 --!strict
 
-local DATA_LOOP_DELAY = 1 / 60
+local DATA_LOOP_DELAY = 1 / 30 --30hz (1800 requests per minute) is below the 2000 requests per minute max for plugins.
 local HEARTBEAT_DELAY_SECONDS = 3
 local DATA_VALUE_NAME = "__EnigmaPluginData"
 local ENIGMA_BASE_URL = "http://localhost:52821/enigma"
@@ -69,22 +69,29 @@ local function StartDataFetch(): ()
     DataFetchLoopActive = true
 
     --Continously fetch the data.
+    local DataFetchLoopStepActive = false
     while DataFetchLoopActive do
-        xpcall(function()
-            local Data = SendDataRequest()
-            if not ReplicatedStorage:FindFirstChild(DATA_VALUE_NAME) then
-                local NewDataValue = Instance.new("StringValue")
-                NewDataValue.Name = DATA_VALUE_NAME
-                NewDataValue.Value = Data
-                NewDataValue.Archivable = false
-                NewDataValue.Parent = ReplicatedStorage
-            else
-                (ReplicatedStorage:FindFirstChild(DATA_VALUE_NAME) :: StringValue).Value = Data
-            end
-            task.wait(DATA_LOOP_DELAY)
-        end, function()
-            DataFetchLoopActive = false
-        end)
+        if not DataFetchLoopStepActive then
+            DataFetchLoopStepActive = true
+            task.spawn(function()
+                xpcall(function()
+                    local Data = SendDataRequest()
+                    if not ReplicatedStorage:FindFirstChild(DATA_VALUE_NAME) then
+                        local NewDataValue = Instance.new("StringValue")
+                        NewDataValue.Name = DATA_VALUE_NAME
+                        NewDataValue.Value = Data
+                        NewDataValue.Archivable = false
+                        NewDataValue.Parent = ReplicatedStorage
+                    else
+                        (ReplicatedStorage:FindFirstChild(DATA_VALUE_NAME) :: StringValue).Value = Data
+                    end
+                end, function()
+                    DataFetchLoopActive = false
+                end)
+                DataFetchLoopStepActive = false
+            end)
+        end
+        task.wait(DATA_LOOP_DELAY)
     end
 end
 
