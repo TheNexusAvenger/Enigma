@@ -21,12 +21,12 @@ return function(Data: string): {RawOpenVRInput}
     --Read the inputs.
     local RawInputs = {}
     for i = 1, Deserializer:ReadNumber() do
-        local Role = TrackerRole[Deserializer:ReadNumber() + 1] or "Unknown" :: TrackerRole.TrackerRole --Protocol starts counting at 0, but Lua starts at 1.
+        local Role = TrackerRole[Deserializer:ReadNumber() + 1] or "Unsupported" --Protocol starts counting at 0, but Lua starts at 1.
         local Position = Deserializer:ReadVector3()
         local Rotation = Deserializer:ReadQuaternion()
         local Velocity = Deserializer:ReadVector3()
         table.insert(RawInputs, {
-            TrackerRole = Role,
+            TrackerRole = Role :: TrackerRole.TrackerRole,
             HeadRelativeCFrame = CFrame.new(Position.X, Position.Y, Position.Z, Rotation.X, Rotation.Y, Rotation.Z, Rotation.W),
             HeadRelativeVelocity = Velocity,
         })
