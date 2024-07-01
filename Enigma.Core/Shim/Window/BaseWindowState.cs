@@ -30,16 +30,9 @@ public abstract class BaseWindowState
         if (focusedWindowName == null) return false;
         if (!focusedWindowName.Contains("Roblox")) return false;
         
-        // Return false for Roblox Studio with 2 dashes or the companion plugin is active.
-        // Currently, this means a script is open.
-        if (focusedWindowName.EndsWith("Roblox Studio"))
-        {
-            if (this._robloxStudioState.IsRobloxStudioConnected()) return false;
-            return focusedWindowName.ToCharArray().Count(character => character == '-') <= 1;
-        }
-        
         // Return true if the windows is Roblox.
         // This attempts to avoid other windows that contain Roblox.
+        // Roblox Studio code was removed in favor of the companion plugin.
         return focusedWindowName == "Roblox";
     }
 
