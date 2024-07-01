@@ -22,6 +22,35 @@ A couple of command line arguments can be added to change how Enigma runs.
 - `--debug-http`: Enables logging for the ASP.NET server used by the comapnion plugin.
   - Logging is disabled by default due to ASP.NET being *very* noisy during normal operation.
 
+## Roblox Library API
+The Roblox library has a few functions in the root module.
+- `Enigma:Enable()` - Enables reading inputs from the desktop application.
+  - While it is fairly safe to call this while not in VR, it is recommended to only
+    run it when VR is active.
+- `Enigma:GetUserCFrameEnabled(UserCFrame: TrackerRole, Index: number?): boolean` -
+  Returns if the tracker for a role is active. In most cases, the index (defaults
+  to 1) is not needed, but since SteamVR allows for multiple trackers with the
+  same role, multiple can be read. For a list of `TrackerRoles`, see [TrackerRole.luau](./RobloxLibrary/src/Data/TrackerRole.luau).
+- `Enigma:GetUserCFrame(UserCFrame: TrackerRole, Index: number?): CFrame?` -
+  Returns the CFrame for a tracker if it is active, or `nil` otherwise. In most cases,
+  the index (defaults to 1) is not needed, but since SteamVR allows for multiple
+  trackers with the same role, multiple can be read. For a list of `TrackerRoles`,
+  see [TrackerRole.luau](./RobloxLibrary/src/Data/TrackerRole.luau).
+
+Below is a very simple example:
+```luau
+local Enigma = require(game:GetService("ReplicatedStorage"):WaitForChild("Enigma"))
+
+Enigma:Enable()
+while true do
+    print(`Left foot CFrame: {Enigma:GetUserCFrame("LeftFoot")}`) --Might be nil at any time!
+    task.wait()
+end
+```
+
+The UserCFrames returned are meant to be mixed with the results of
+`UserInputService::GetUserCFrame`.
+
 ## How It Works
 ### Normal Operation
 Enigma sends data using a combination of the system clipboard and a `TextBox` in
