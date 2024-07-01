@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
 using Enigma.Core.Roblox;
 using Microsoft.AspNetCore.Builder;
@@ -39,7 +40,7 @@ public class WebServer
     /// Starts the web server.
     /// </summary>
     /// <param name="addNexusLogging">Whether to add the logger for ASP.NET.</param>
-    public void Start(bool addNexusLogging)
+    public async Task StartAsync(bool addNexusLogging)
     {
         // Create the app builder with custom logging.
         var builder = WebApplication.CreateSlimBuilder();
@@ -75,9 +76,6 @@ public class WebServer
         });
 
         // Run the server in the background.
-        Task.Run(() =>
-        {
-            app.Run($"http://localhost:{Port}");
-        });
+        await app.RunAsync($"http://localhost:{Port}");
     }
 }

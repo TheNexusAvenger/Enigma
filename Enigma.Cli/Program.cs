@@ -26,12 +26,12 @@ public class Program : BaseProgram
         var appInstances = new AppInstances();
         await appInstances.OpenVrInputs.InitializeOpenVrAsync();
         appInstances.SteamVrSettingsState.ConnectReloading();
-        appInstances.WebServer.Start(this.AspNetLoggingEnabled);
+        var webServerTask = appInstances.WebServer.StartAsync(this.AspNetLoggingEnabled);
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();
         Logger.Info("Started Enigma. Make sure a Roblox client or Roblox Studio window is focused.");
         
-        // Keep the application alive.
-        new CancellationToken().WaitHandle.WaitOne();
+        // Wait for the web server to exit.
+        await webServerTask;
     }
 }
