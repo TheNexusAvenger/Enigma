@@ -70,7 +70,6 @@ public class SteamVrSettingsState
             var fileSystemWatcher = new FileSystemWatcher(steamVrSettingsDirectory);
             fileSystemWatcher.Changed += async (_, eventArgs) =>
             {
-                Console.WriteLine(eventArgs.Name);
                 if (eventArgs.Name != "steamvr.vrsettings") return;
                 await this.ReloadSettingsAsync();
             };
