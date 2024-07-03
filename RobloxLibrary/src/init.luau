@@ -11,6 +11,7 @@ local DeserializeOpenVrInputs = require(script:WaitForChild("Serialization"):Wai
 local CalculateRolloff = require(script:WaitForChild("Util"):WaitForChild("CalculateRolloff"))
 
 local Enigma = {
+    Enabled = false,
     TrackerRoles = TrackerRole,
     Input = nil :: CombinedInput.CombinedInput?,
     LastInputData = "",
@@ -88,6 +89,7 @@ Enables inputs for Enigma.
 function Enigma.Enable(self: Enigma): ()
     if self.Input then return end
     self.Input = CombinedInput.new({TextBoxInput.new(), CompanionPluginInput.new()} :: {any})
+    self.Enabled = true
 end
 
 
