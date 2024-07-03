@@ -3,6 +3,8 @@
 
 local LAST_INPUT_TIMEOUT_SECONDS = 0.5
 
+local UserInputService = game:GetService("UserInputService")
+
 local TrackerRole = require(script:WaitForChild("Data"):WaitForChild("TrackerRole"))
 local CombinedInput = require(script:WaitForChild("Input"):WaitForChild("CombinedInput"))
 local CompanionPluginInput = require(script:WaitForChild("Input"):WaitForChild("CompanionPluginInput"))
