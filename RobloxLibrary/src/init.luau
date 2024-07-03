@@ -25,6 +25,22 @@ export type Enigma = typeof(Enigma)
 
 
 --[[
+Returns if Enigma is considered active.
+--]]
+function Enigma.IsActive(self: Enigma): ()
+    --Return if the Enigma text box is active.
+    local FocusedTextBox = UserInputService:GetFocusedTextBox()
+    if FocusedTextBox then
+        if FocusedTextBox.Parent and FocusedTextBox.Name == "EnigmaTextBox" then
+            return true
+        end
+    end
+
+    --Return if the last update was within the timeout.
+    return (tick() - self.LastInputTime) < LAST_INPUT_TIMEOUT_SECONDS
+end
+
+--[[
 Updates the stored UserCFrames.
 --]]
 function Enigma.UpdateUserCFrames(self: Enigma): ()

@@ -81,6 +81,7 @@ function TextBoxInput.CreateTextBox(self: TextBoxInput, Parent: Instance): ()
     self.ScreenGui = ScreenGui
 
     local TextBox = Instance.new("TextBox")
+    TextBox.Name = "EnigmaTextBox"
     TextBox.BackgroundTransparency = 0.99
     TextBox.BorderSizePixel = 0
     TextBox.Size = UDim2.new(0, 1, 0, 1)
