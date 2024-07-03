@@ -1,6 +1,8 @@
 --Main module for managing UserCFrames from Enigma.
 --!strict
 
+local LAST_INPUT_TIMEOUT_SECONDS = 0.5
+
 local TrackerRole = require(script:WaitForChild("Data"):WaitForChild("TrackerRole"))
 local CombinedInput = require(script:WaitForChild("Input"):WaitForChild("CombinedInput"))
 local CompanionPluginInput = require(script:WaitForChild("Input"):WaitForChild("CompanionPluginInput"))
@@ -31,9 +33,15 @@ function Enigma.UpdateUserCFrames(self: Enigma): ()
         return
     end
 
-    --Return if the data is uncahgned.
+    --Return if the data is unchanged.
+    --Clear the inputs if it has been enough time since the last update.
     local NewInputData = self.Input:GetCurrentText()
-    if NewInputData == self.LastInputData then return end
+    if NewInputData == self.LastInputData then
+        if tick() - self.LastInputTime >= LAST_INPUT_TIMEOUT_SECONDS then
+            self.LastInputs = {}
+        end
+        return
+    end
 
     --Parse and store the inputs.
     --Done in a pcall in case the text can't be parsed.
