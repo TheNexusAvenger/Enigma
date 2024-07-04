@@ -80,4 +80,4 @@ for platform in PLATFORMS:
 
         # Create the archive.
         print(projectName + "/bin/Release/" + dotNetVersion + "/" + platformName + "/publish")
-        shutil.make_archive("bin/" + project["targetExecutable"] + "-" + projectName, "zip", projectName + "/bin/Release/" + dotNetVersion + "/" + platformRuntime + "/publish")
+        shutil.make_archive("bin/" + project["targetExecutable"] + "-" + platformName, "zip", projectName + "/bin/Release/" + dotNetVersion + "/" + platformRuntime + "/publish")
