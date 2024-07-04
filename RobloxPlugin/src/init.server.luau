@@ -16,6 +16,7 @@ local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 
 local RobloxVersion = Version()
+local RobloxVersionIsLimited = plugin:GetSetting("Enigma_LastVersionWith500RequestLimit") == RobloxVersion
 local DataFetchLoopActive = false
 local TooManyRequestsReached = false
 local SentRequests = 0
@@ -44,9 +45,22 @@ end
 Sends a heartbeat request. Returns if it was successful.
 --]]
 local function SendHeartbeatRequest(): boolean
+    --Send the heartbeat request.
     local Worked, Message = pcall(function()
         SendHttpRequest(ENIMGA_HEARTBEAT_URL, "POST")
     end)
+
+    --Change the replication delay if the version is potentially limited to 500 requests / minute.
+    --See: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079
+    if Worked and not TooManyRequestsReached and RobloxVersionIsLimited then
+        TooManyRequestsReached = true
+        DATA_LOOP_DELAY = DATA_LOOP_FALLBACK_DELAY
+        if RunService:IsRunMode() then
+            warn(`[Enigma] Based on a previous run, replication will be limited to 8hz for version Roblox Studio version {RobloxVersion}. Bug report for this limitation: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079`)
+        end
+    end
+
+    --Print if too many requests was reached.
     if not Worked and Message == "Number of requests exceeded limit" then
         warn(`[Enigma] Number of HTTP service requests exceeded ({SentRequests} requests completed). The refresh rate must be decreased.`)
         if not TooManyRequestsReached then
@@ -61,6 +75,8 @@ local function SendHeartbeatRequest(): boolean
             end
         end
     end
+
+    --Return if the heartbeat worked.
     return Worked
 end
 
@@ -110,16 +126,6 @@ local function StartDataFetch(): ()
 end
 
 
-
---Change the replication delay if the version is potentially limited to 500 requests / minute.
---See: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079
-if plugin:GetSetting("Enigma_LastVersionWith500RequestLimit") == RobloxVersion then
-    TooManyRequestsReached = true
-    DATA_LOOP_DELAY = DATA_LOOP_FALLBACK_DELAY
-    if RunService:IsRunMode() then
-        warn(`[Enigma] Based on a previous run, replication will be limited to 8hz for version Roblox Studio version {RobloxVersion}. Bug report for this limitation: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079`)
-    end
-end
 
 --Clear total requests every minute.
 task.spawn(function()
