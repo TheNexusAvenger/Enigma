@@ -76,7 +76,7 @@ and will poll the latest data that would have been pushed about 60 times a secon
 - Constant keyboard inputs will disable Roblox's default gamepad navigation.
   It will need to be re-implemented.
 - **Enigma might be incompatible with specific experiences, or have major performance
-  issues in specific games.** Issues specific to experiences must be brought to the
+  issues in specific experiences.** Issues specific to experiences must be brought to the
   experience first. Issues specific to systems that implement it (like
   [Nexus VR Character Model](https://github.com/TheNexusAvenger/Nexus-VR-Character-Model))
   must be brought to the project first.
