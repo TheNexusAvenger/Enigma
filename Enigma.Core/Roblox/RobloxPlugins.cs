@@ -34,7 +34,7 @@ public static class RobloxPlugins
     public static async Task CopyPluginAsync()
     {
         // Return if the source plugin does not exist.
-        var sourcePluginPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!, SourcePluginName);
+        var sourcePluginPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location) ?? ".", SourcePluginName);
         if (!File.Exists(sourcePluginPath))
         {
             Logger.Debug($"Source plugin file {sourcePluginPath} not found. The managed plugin will not be copied.");
