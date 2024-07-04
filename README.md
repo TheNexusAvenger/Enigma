@@ -8,8 +8,8 @@ some limitations.
 
 ## Running
 In order to run Enigma, the application needs to be downloaded from GitHub releases
-needs to be downloaded and ran. **The first run sets up a Roblox Studion companion plugin.
-It is highly recommended to restart open Studio windows after the first run.**
+needs to be downloaded and ran. **The first run sets up a Roblox Studio companion plugin.
+It is required to restart open Studio windows after the first run.**
 
 Once Enigma is running, it wait for OpenVR (SteamVR) to be detected, and start reading
 and sending tracker data using the methods below. Data will only be sent when a Roblox
@@ -21,6 +21,13 @@ A couple of command line arguments can be added to change how Enigma runs.
 - `--trace`: Enables trace + debug logging (such as average timings for sending data).
 - `--debug-http`: Enables logging for the ASP.NET server used by the comapnion plugin.
   - Logging is disabled by default due to ASP.NET being *very* noisy during normal operation.
+
+### Graphical User Interface
+At the moment, no user interface is provided. A SteamVR overlay for statistics and
+temporarily pausing/resuming would be ideal, but help is wanted to achieve this (OpenGL
+or Vulkan knowledge potentially required). A desktop application will most likely be made
+in the near future using [Avalonia](https://github.com/AvaloniaUI/Avalonia) due to it
+being cross-platform.
 
 ## Roblox Library API
 The Roblox library has a few functions in the root module.
@@ -60,9 +67,12 @@ the keyboard, then run Ctrl + A and Ctrl + V to override the data in the TextBox
 ### Companion Plugin (Roblox Studio Only)
 Due to blindly pasting with Roblox Studio being destructive, a companion plugin
 is automatically set up when Enigma is run. The plugin will always attempt to
-send heartbeat requests every 3 seconds to disable pasting to Roblox Studio, 
-and will poll the latest data that would have been pushed about 60 times a second
-*only while in run mode*.
+send heartbeat requests every 3 seconds, and will poll the latest data that would
+have been pushed about 60 times a second *only while in run mode*. The clipboard
+is not used to it being overwriting scripts.
+
+Note: The plugin might be limited to replicating data at 8hz
+[due to a Roblox Studio bug](https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079).
 
 ## Limitations
 - Contents of the clipboard are always overwritten. Anything in the clipboard
@@ -84,6 +94,10 @@ and will poll the latest data that would have been pushed about 60 times a secon
   to be detected by OpenVR.
 - Inertial Measurement Unit (IMU)-based trackers are untested. Special support might
   be required.
+- Roblox on Windows Stores (sometimes known as UWP) does not support VR, but Enigma
+  will try to paste to it.
+  - The normal Roblox client outside of the game will have the same problem. Navigation
+    may not work when Enigma is active.
 
 ### macOS and Linux Support
 At the moment, macOS and Linux probably do not work. It is unclear if they can be supported.
