@@ -1,5 +1,7 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Text;
 using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
 using Enigma.Core.Roblox;
@@ -23,6 +25,16 @@ public abstract class BaseProgram
     /// Command option for enabling logging for ASP.NET Core.
     /// </summary>
     public static readonly Option<bool> HttpDebugLogging = new Option<bool>("--debug-http", "Enables logging for the ASP.NET Core HTTP server used by the Roblox Studio companion app.");
+    
+    /// <summary>
+    /// Command for running the application.
+    /// </summary>
+    public static readonly Command RunCommand = new Command("run", "Runs the Enigma application.");
+
+    /// <summary>
+    /// Command for listing OpenVR devices.
+    /// </summary>
+    public static readonly Command ListDevicesCommand = new Command("list-devices", "Lists the devices that are currently available to OpenVR.");
 
     /// <summary>
     /// Whether logging for ASP.NET Core should be enabled.
@@ -35,19 +47,32 @@ public abstract class BaseProgram
     /// <param name="args">Arguments from the command line.</param>
     public async Task<int> RunMainAsync(string[] args)
     {
+        // Add the options to the commands.
+        RunCommand.AddOption(DebugOption);
+        RunCommand.AddOption(TraceOption);
+        RunCommand.AddOption(HttpDebugLogging);
+        RunCommand.SetHandler(this.RunApplicationAsync);
+        ListDevicesCommand.AddOption(DebugOption);
+        ListDevicesCommand.AddOption(TraceOption);
+        ListDevicesCommand.SetHandler(this.ListDevicesAsync);
+        
+        // Create the root command.
+        // The root command also functions as the run command.
         var rootCommand = new RootCommand(description: "Provides SteamVR tracker data to the Roblox client.");
         rootCommand.AddOption(DebugOption);
         rootCommand.AddOption(TraceOption);
         rootCommand.AddOption(HttpDebugLogging);
+        rootCommand.AddCommand(RunCommand);
+        rootCommand.AddCommand(ListDevicesCommand);
         rootCommand.SetHandler(this.RunApplicationAsync);
         return await rootCommand.InvokeAsync(args);
     }
 
     /// <summary>
-    /// Runs the application with parsed command line arguments.
+    /// Prepares the application for running.
     /// </summary>
     /// <param name="invocationContext">Context for the command line options.</param>
-    private async Task RunApplicationAsync(InvocationContext invocationContext)
+    private void PrepareApplication(InvocationContext invocationContext)
     {
         // Set the log level.
         if (invocationContext.ParseResult.GetValueForOption(TraceOption))
@@ -60,6 +85,16 @@ public abstract class BaseProgram
             Logger.SetMinimumLogLevel(LogLevel.Debug);
             Logger.Debug("Enabled debug logging.");
         }
+    }
+
+    /// <summary>
+    /// Runs the application with parsed command line arguments.
+    /// </summary>
+    /// <param name="invocationContext">Context for the command line options.</param>
+    private async Task RunApplicationAsync(InvocationContext invocationContext)
+    {
+        // Prepare the logging.
+        this.PrepareApplication(invocationContext);
         
         // Check if logging should be added to ASP.NET.
         if (invocationContext.ParseResult.GetValueForOption(HttpDebugLogging))
@@ -73,6 +108,57 @@ public abstract class BaseProgram
         
         // Run the program.
         await this.RunAsync();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="invocationContext">Context for the command line options.</param>
+    private async Task ListDevicesAsync(InvocationContext invocationContext)
+    {
+        // Prepare the logging.
+        this.PrepareApplication(invocationContext);
+        
+        // Wait for OpenVR to be started.
+        var appInstances = new AppInstances();
+        try
+        {
+            await appInstances.OpenVrInputs.InitializeOpenVrAsync();
+        }
+        catch (DllNotFoundException)
+        {
+            await Logger.WaitForCompletionAsync();
+            Environment.Exit(-1);
+        }
+        await appInstances.SteamVrSettingsState.ReloadSettingsAsync();
+        Logger.Info("Listing OpenVR devices.");
+        
+        // Get and list the OpenVR devices.
+        var devices = appInstances.OpenVrInputs.ListDevices();
+        var devicesOutput = new StringBuilder();
+        devicesOutput.Append($"OpenVR devices ({devices.Count}):");
+        foreach (var device in devices)
+        {
+            devicesOutput.Append($"\n| [{device.DeviceId}] {device.HardwareId} ({device.DeviceType})");
+            foreach (var (propertyName, propertyValue) in device.StringProperties)
+            {
+                devicesOutput.Append($"\n|   {propertyName}: {propertyValue}");
+            }
+        }
+        Logger.Info(devicesOutput);
+
+        // List all the SteamVR tracker roles.
+        var trackerRoles = appInstances.SteamVrSettingsState.GetAllTrackerRoles();
+        var trackersOutputs = new StringBuilder();
+        trackersOutputs.Append($"SteamVR tracker roles ({trackerRoles.Count}):");
+        foreach (var (trackerName, trackerRole) in trackerRoles)
+        {
+            trackersOutputs.Append($"\n| {trackerName}: {trackerRole}");
+        }
+        Logger.Info(trackersOutputs);
+        
+        // Wait for the logging to complete.
+        await Logger.WaitForCompletionAsync();
     }
 
     /// <summary>

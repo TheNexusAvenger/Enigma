@@ -137,13 +137,26 @@ public class SteamVrSettingsState
     /// <summary>
     /// Returns the role for a tracker.
     /// </summary>
-    /// <param name="trackingSystem">Tracking system the tracker is part of.</param>
-    /// <param name="serialNumber">Serial number of the tracker.</param>
+    /// <param name="hardwareId">Hardware id of the tracker to find.</param>
     /// <returns>Role of the tracker, if it is defined.</returns>
-    public TrackerRole GetRole(string trackingSystem, string serialNumber)
+    public TrackerRole GetRole(string hardwareId)
     {
         if (this._trackerRoles == null) return TrackerRole.None;
-        var trackerDevice = $"/devices/{trackingSystem}/{serialNumber}";
-        return this._trackerRoles.TryGetValue(trackerDevice, out var trackerRole) ? trackerRole : TrackerRole.None;
+        return this._trackerRoles.GetValueOrDefault(hardwareId, TrackerRole.None);
+    }
+
+    /// <summary>
+    /// Returns all the current tracker roles.
+    /// </summary>
+    /// <returns>All of the stored tracker roles.</returns>
+    public Dictionary<string, TrackerRole> GetAllTrackerRoles()
+    {
+        var trackerRoles = new Dictionary<string, TrackerRole>();
+        if (this._trackerRoles == null) return trackerRoles;
+        foreach (var (trackerName, trackerRole) in this._trackerRoles)
+        {
+            trackerRoles[trackerName] = trackerRole;
+        }
+        return trackerRoles;
     }
 }

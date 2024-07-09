@@ -32,8 +32,8 @@ public class SteamVrSettingsStateTest
                 {"/devices/lighthouse/12345", "TrackerRole_LeftShoulder"},
             }
         });
-        Assert.That(this._steamVrSettingsState.GetRole("lighthouse", "12345"), Is.EqualTo(TrackerRole.LeftShoulder));
-        Assert.That(this._steamVrSettingsState.GetRole("lighthouse", "23456"), Is.EqualTo(TrackerRole.None));
+        Assert.That(this._steamVrSettingsState.GetRole("/devices/lighthouse/12345"), Is.EqualTo(TrackerRole.LeftShoulder));
+        Assert.That(this._steamVrSettingsState.GetRole("/devices/lighthouse/23456"), Is.EqualTo(TrackerRole.None));
        
         this._steamVrSettingsState.ReloadSettings(new SteamVrSettings()
         {
@@ -44,21 +44,21 @@ public class SteamVrSettingsStateTest
                 {"/devices/lighthouse/34567", "TrackerRole_Unknown"},
             }
         });
-        Assert.That(this._steamVrSettingsState.GetRole("lighthouse", "12345"), Is.EqualTo(TrackerRole.RightShoulder));
-        Assert.That(this._steamVrSettingsState.GetRole("lighthouse", "23456"), Is.EqualTo(TrackerRole.LeftKnee));
+        Assert.That(this._steamVrSettingsState.GetRole("/devices/lighthouse/12345"), Is.EqualTo(TrackerRole.RightShoulder));
+        Assert.That(this._steamVrSettingsState.GetRole("/devices/lighthouse/23456"), Is.EqualTo(TrackerRole.LeftKnee));
     }
 
     [Test]
     public void ReloadSettingsNullSteamVrSettings()
     {
         this._steamVrSettingsState.ReloadSettings(null);
-        Assert.That(this._steamVrSettingsState.GetRole("lighthouse", "12345"), Is.EqualTo(TrackerRole.None));
+        Assert.That(this._steamVrSettingsState.GetRole("/devices/lighthouse/12345"), Is.EqualTo(TrackerRole.None));
     }
 
     [Test]
     public void ReloadSettingsNullTrackers()
     {
         this._steamVrSettingsState.ReloadSettings(new SteamVrSettings());
-        Assert.That(this._steamVrSettingsState.GetRole("lighthouse", "12345"), Is.EqualTo(TrackerRole.None));
+        Assert.That(this._steamVrSettingsState.GetRole("/devices/lighthouse/12345\""), Is.EqualTo(TrackerRole.None));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,6 +97,58 @@ public class OpenVrInputs
         this._ovrSystem.GetStringTrackedDeviceProperty(trackerIndex, property, propertyBuilder, 128, ref error);
         return error == ETrackedPropertyError.TrackedProp_Success ? propertyBuilder.ToString() : null;
     }
+
+    /// <summary>
+    /// Returns the hardware id for a tracker.
+    /// Placeholder strings will be used when a property is not provided.
+    /// </summary>
+    /// <param name="trackerIndex">Index of the tracker to get the id for.</param>
+    /// <returns>Hardware id of the track.</returns>
+    private string GetHardwareId(uint trackerIndex)
+    {
+        var trackingSystem = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_TrackingSystemName_String) ?? "<UNDEFINED_TrackingSystemName>";
+        var serialNumber = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String) ?? "<UNDEFINED_SerialNumber>";
+        return $"/devices/{trackingSystem}/{serialNumber}";
+    }
+
+    /// <summary>
+    /// Lists the connected inputs in OpenVR, including non-trackers.
+    /// </summary>
+    /// <returns>List of OpenVR devices.</returns>
+    public List<OpenVrDevice> ListDevices()
+    {
+        // Throw an exception if OpenVR is not initialized.
+        if (this._ovrSystem == null)
+        {
+            throw new InvalidOperationException("OpenVR is not initialized.");
+        }
+        
+        // List the devices.
+        var devices = new List<OpenVrDevice>();
+        for (uint i = 0; i < DevicesToCheck; i++)
+        {
+            // Ignore the device if it is invalid.
+            var deviceType = this._ovrSystem.GetTrackedDeviceClass(i);
+            if (deviceType == ETrackedDeviceClass.Invalid) continue;
+            
+            // Add the device.
+            var device = new OpenVrDevice()
+            {
+                DeviceId = i,
+                HardwareId = this.GetHardwareId(i),
+                DeviceType = deviceType,
+            };
+            foreach (ETrackedDeviceProperty deviceProperty in Enum.GetValues(typeof(ETrackedDeviceProperty)))
+            {
+                if (!deviceProperty.ToString().EndsWith("_String")) continue;
+                var devicePropertyValue = this.GetTrackerStringProperty(i, deviceProperty);
+                if (string.IsNullOrEmpty(devicePropertyValue)) continue;
+                device.StringProperties[deviceProperty] = devicePropertyValue;
+            }
+            devices.Add(device);
+        }
+        return devices;
+    }
     
     /// <summary>
     /// Returns the current OpenVR inputs for Roblox.
@@ -123,11 +176,8 @@ public class OpenVrInputs
             
             // Get the tracker information.
             if (!this._ovrSystem.IsTrackedDeviceConnected(i)) continue;
-            var trackingSystem = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_TrackingSystemName_String);
-            if (trackingSystem == null) continue;
-            var serialNumber = this.GetTrackerStringProperty(i, ETrackedDeviceProperty.Prop_SerialNumber_String);
-            if (serialNumber == null) continue;
-            var trackerRole = this._steamVrSettingsState.GetRole(trackingSystem, serialNumber);
+            var hardwareId = this.GetHardwareId(i);
+            var trackerRole = this._steamVrSettingsState.GetRole(hardwareId);
             
             // Add the tracker information.
             trackerInputs.Add(new TrackerInput()
