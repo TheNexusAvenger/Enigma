@@ -88,4 +88,12 @@ public class Logger
     {
         NexusLogger.Error(content);
     }
+    
+    /// <summary>
+    /// Waits for all loggers to finish processing logs.
+    /// </summary>
+    public static async Task WaitForCompletionAsync()
+    {
+        await NexusLogger.WaitForCompletionAsync();
+    }
 }

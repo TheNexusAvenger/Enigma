@@ -62,6 +62,11 @@ public class OpenVrInputs
                 }
                 await Task.Delay(50);
             }
+            catch (DllNotFoundException)
+            {
+                Logger.Error("The file openvr_api.dll is missing. This file is required for Enigma to start.");
+                throw;
+            }
         }
         
         // Print after it loaded if OpenVR was not initially open.

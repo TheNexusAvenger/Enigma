@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿using System;
 using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
 using Enigma.Core.Program;
@@ -22,15 +22,25 @@ public class Program : BaseProgram
     /// </summary>
     public override async Task RunAsync()
     {
-        // Start the application.
+        // Wait for OpenVR.
         var appInstances = new AppInstances();
-        await appInstances.OpenVrInputs.InitializeOpenVrAsync();
+        try
+        {
+            await appInstances.OpenVrInputs.InitializeOpenVrAsync();
+        }
+        catch (DllNotFoundException)
+        {
+            await Logger.WaitForCompletionAsync();
+            Environment.Exit(-1);
+        }
+        
+        // Start the application.
         appInstances.SteamVrSettingsState.ConnectReloading();
         var webServerTask = appInstances.WebServer.StartAsync(this.AspNetLoggingEnabled);
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();
         Logger.Info("Started Enigma. Make sure a Roblox client or Roblox Studio window is focused.");
-        
+    
         // Wait for the web server to exit.
         await webServerTask;
     }
