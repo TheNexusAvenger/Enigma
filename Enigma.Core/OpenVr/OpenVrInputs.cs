@@ -93,8 +93,8 @@ public class OpenVrInputs
         
         // Build and return the message if it was a success.
         var error = ETrackedPropertyError.TrackedProp_Success;
-        var propertyBuilder = new StringBuilder();
-        this._ovrSystem.GetStringTrackedDeviceProperty(trackerIndex, property, propertyBuilder, 128, ref error);
+        var propertyBuilder = new StringBuilder(128);
+        this._ovrSystem.GetStringTrackedDeviceProperty(trackerIndex, property, propertyBuilder, (uint) propertyBuilder.Capacity, ref error);
         return error == ETrackedPropertyError.TrackedProp_Success ? propertyBuilder.ToString() : null;
     }
 
