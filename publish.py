@@ -4,8 +4,10 @@ TheNexusAvenger
 Creates the binaries for distribution.
 """
 
+import json
 import os
 import platform
+import re
 import shutil
 import subprocess
 
@@ -16,13 +18,38 @@ PROJECTS = [
     },
 ]
 
+
+# Get the release information.
+gitCommit = subprocess.check_output(["git", "show", "--oneline", "-s"]).decode().split(" ")[0]
+gitOwner = "TheNexusAvenger"
+gitProject = "Enigma"
+gitRemote = subprocess.check_output(["git", "config", "--get", "remote.origin.url"]).decode()
+gitRemoteParts = re.findall(r"([^/:]+)/([^/:]+)\.git", gitRemote)
+if len(gitRemoteParts) >= 1:
+    gitOwner = gitRemoteParts[0][0]
+    gitProject = gitRemoteParts[0][1]
+
+print("Git commit: " + gitCommit)
+print("Git owner: " + gitOwner)
+print("Git project: " + gitProject)
+gitTag = input("Enter the Git tag that will be used: ")
+print("Git tag: " + gitTag)
+
+# Write the version information.
+with open(os.path.join(os.path.dirname(__file__), "Enigma.Core", "Version.json"), "w") as file:
+    file.write(json.dumps({
+        "Version": gitTag,
+        "Commit": gitCommit,
+        "GitHubUser": gitOwner,
+        "GitHubProject": gitProject,
+    }, indent = 4))
+
 # Set the platforms.
 # macOS and Linux currently aren't supported in the code.
 # See the README about potential support.
 if platform.system() == "Windows":
     print("Building for Windows.")
-    buildMode = "Windows"
-    PLATFORMS = [
+    platforms = [
         {
             "name": "Windows-x64",
             "runtime": "win-x64"
@@ -32,7 +59,6 @@ else:
     print("Unsupported platform: " + platform.system())
     exit(1)
 print("")
-
 
 # Create the directory.
 if os.path.exists("bin"):
@@ -44,7 +70,7 @@ subprocess.call(["rojo", "build", "./default.project.json", "--output", "./bin/E
 subprocess.call(["rojo", "build", "./plugin.project.json", "--output", "./bin/EnigmaCompanionPlugin.rbxmx"])
 
 # Compile the .NET releases.
-for platform in PLATFORMS:
+for platform in platforms:
     platformName = platform["name"]
     platformRuntime = platform["runtime"]
     for project in PROJECTS:
