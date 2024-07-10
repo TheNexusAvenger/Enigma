@@ -75,7 +75,7 @@ for platform in platforms:
     platformRuntime = platform["runtime"]
     for project in PROJECTS:
         projectName = project["project"]
-        sourceExecutable = platformName
+        sourceExecutable = projectName
         targetExecutable = project["targetExecutable"]
         if "win" in platformRuntime:
             sourceExecutable += ".exe"
@@ -101,9 +101,10 @@ for platform in platforms:
         # Rename the executables.
         sourceExecutablePath = outputDirectory + "/" + sourceExecutable
         targetExecutablePath = outputDirectory + "/" + targetExecutable
+        if os.path.exists(targetExecutablePath):
+            os.remove(targetExecutablePath)
         if os.path.exists(sourceExecutablePath):
             os.rename(sourceExecutablePath, targetExecutablePath)
 
         # Create the archive.
-        print(projectName + "/bin/Release/" + dotNetVersion + "/" + platformName + "/publish")
         shutil.make_archive("bin/" + project["targetExecutable"] + "-" + platformName, "zip", projectName + "/bin/Release/" + dotNetVersion + "/" + platformRuntime + "/publish")
