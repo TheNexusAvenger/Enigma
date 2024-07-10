@@ -38,10 +38,10 @@ public class GitHubApi
     /// </summary>
     /// <param name="projectVersionData">Version data of the project.</param>
     /// <returns>The latest GitHub release for the project, if one exists.</returns>
-    public async Task<GitHubRelease?> GetLatestReleaseAsync(ProjectVersionData projectVersionData)
+    public async Task<GitHubRelease?> GetLatestReleaseAsync(ProjectVersionData? projectVersionData)
     {
         // Return if there is a null value.
-        if (projectVersionData.GitHubUser == null)
+        if (projectVersionData?.GitHubUser == null)
         {
             Logger.Warn("ProjectVersionData.GitHubUser was not provided. No releases on GitHub can be checked.");
             return null;

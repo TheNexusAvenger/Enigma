@@ -34,6 +34,13 @@ public class GitHubApiTest
     }
 
     [Test]
+    public void TestGetLatestReleaseAsyncNullProjectVersion()
+    {
+        var release = this._gitHubApi.GetLatestReleaseAsync(null).Result;
+        Assert.That(release, Is.Null);
+    }
+
+    [Test]
     public void TestGetLatestReleaseAsyncNullUser()
     {
         var release = this._gitHubApi.GetLatestReleaseAsync(new ProjectVersionData()

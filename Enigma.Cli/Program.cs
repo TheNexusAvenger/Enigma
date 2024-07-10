@@ -22,8 +22,11 @@ public class Program : BaseProgram
     /// </summary>
     public override async Task RunAsync()
     {
-        // Wait for OpenVR.
+        // Check for updates in the background.
         var appInstances = new AppInstances();
+        var _ = appInstances.UpdateCheck.CheckForUpdatesAsync();
+        
+        // Wait for OpenVR.
         try
         {
             await appInstances.OpenVrInputs.InitializeOpenVrAsync();

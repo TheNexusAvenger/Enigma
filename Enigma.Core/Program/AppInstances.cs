@@ -4,6 +4,7 @@ using Enigma.Core.Roblox;
 using Enigma.Core.Shim.Output;
 using Enigma.Core.Shim.Window;
 using Enigma.Core.Web;
+using Enigma.Core.Web.GitHub;
 
 namespace Enigma.Core.Program;
 
@@ -60,6 +61,11 @@ public class AppInstances
     public readonly LogOutputLoop LogOutputLoop;
 
     /// <summary>
+    /// Update check instance used by the application.
+    /// </summary>
+    public readonly UpdateCheck UpdateCheck;
+
+    /// <summary>
     /// Initializes the app instances.
     /// </summary>
     public AppInstances()
@@ -79,5 +85,8 @@ public class AppInstances
         // Create the loops.
         this.RobloxOutputLoop = new RobloxOutputLoop(this.OpenVrInputs, this.RobloxOutput);
         this.LogOutputLoop = new LogOutputLoop(this.RobloxOutputLoop);
+        
+        // Create the other services.
+        this.UpdateCheck = new UpdateCheck();
     }
 }
