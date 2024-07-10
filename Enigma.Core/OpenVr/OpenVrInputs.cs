@@ -106,6 +106,14 @@ public class OpenVrInputs
     /// <returns>Hardware id of the track.</returns>
     private string GetHardwareId(uint trackerIndex)
     {
+        // Return based on Prop_RegisteredDeviceType (Vive trackers, Amethyst).
+        var registeredDeviceType = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_RegisteredDeviceType_String);
+        if (registeredDeviceType != null)
+        {
+            return registeredDeviceType;
+        }
+        
+        // Return based on TrackingSystemName and SerialNumber (Tundra trackers).
         var trackingSystem = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_TrackingSystemName_String) ?? "<UNDEFINED_TrackingSystemName>";
         var serialNumber = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String) ?? "<UNDEFINED_SerialNumber>";
         return $"/devices/{trackingSystem}/{serialNumber}";
