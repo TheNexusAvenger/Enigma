@@ -7,6 +7,7 @@ using Enigma.Core.Diagnostic;
 using Enigma.Core.Extension;
 using Enigma.Core.OpenVr.Model;
 using Enigma.Core.Shim.OpenVr;
+using Microsoft.Extensions.Logging;
 using OVRSharp;
 using OVRSharp.Exceptions;
 using OVRSharp.Math;
@@ -123,6 +124,44 @@ public class OpenVrInputs
     }
 
     /// <summary>
+    /// Attempts to guess the tracker role for a tracker.
+    /// </summary>
+    /// <param name="trackerIndex">Device index of the tracker to guess the role of.</param>
+    /// <returns>Guessed tracker role for the tracker.</returns>
+    public TrackerRole GuessTrackerRole(uint trackerIndex)
+    {
+        // Iterate over the tracker roles to try to find role.
+        var controllerType = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_ControllerType_String);
+        var controllerTypeNoSpaces = (controllerType ?? "").Replace("_", "");
+        var serialNumber = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+        var serialNumberNoSpaces = (serialNumber ?? "").Replace(" ", "");
+        foreach (TrackerRole trackerRole in Enum.GetValues(typeof(TrackerRole)))
+        {
+            // Return based on the controller type (Vive trackers, Tundra trackers, Amethyst).
+            var trackerRoleName = trackerRole.ToString();
+            if (controllerTypeNoSpaces.EndsWith(trackerRoleName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return trackerRole;
+            }
+            
+            // Return based on the serial number (Standable).
+            if (serialNumberNoSpaces.EndsWith(trackerRoleName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return trackerRole;
+            }
+        }
+        
+        // Warn if the tracker role can't be guessed.
+        if (controllerType != null && controllerType != "vive_tracker")
+        {
+            Logger.LogOnce(LogLevel.Warning, $"Device {this.GetHardwareId(trackerIndex)} tracker role could not be guessed.\nPlease create a GitHub Issue with the contents of `list-devices --masked`.");
+        }
+        
+        // Return no role (can't determine role).
+        return TrackerRole.None;
+    }
+
+    /// <summary>
     /// Lists the connected inputs in OpenVR, including non-trackers.
     /// </summary>
     /// <returns>List of OpenVR devices.</returns>
@@ -143,12 +182,18 @@ public class OpenVrInputs
             if (deviceType == ETrackedDeviceClass.Invalid) continue;
             
             // Add the device.
+            var hardwareId = this.GetHardwareId(i);
             var device = new OpenVrDevice()
             {
                 DeviceId = i,
                 HardwareId = this.GetHardwareId(i),
                 DeviceType = deviceType,
             };
+            if (device.DeviceType == ETrackedDeviceClass.GenericTracker)
+            {
+                device.GuessedRole = this.GuessTrackerRole(i);
+                device.SteamVrRole = this._steamVrSettingsState.GetRole(hardwareId);
+            }
             foreach (ETrackedDeviceProperty deviceProperty in Enum.GetValues(typeof(ETrackedDeviceProperty)))
             {
                 if (!deviceProperty.ToString().EndsWith("_String")) continue;
@@ -188,14 +233,15 @@ public class OpenVrInputs
             // Get the tracker information.
             if (!this._ovrSystem.IsTrackedDeviceConnected(i)) continue;
             var hardwareId = this.GetHardwareId(i);
-            var trackerRole = this._steamVrSettingsState.GetRole(hardwareId);
+            var steamVrTrackerRole = this._steamVrSettingsState.GetRole(hardwareId);
             
             // Add the tracker information.
+            this.GuessTrackerRole(i);
             trackerInputs.Add(new TrackerInput()
             {
                 DeviceId = i,
                 DeviceType = inputType,
-                TrackerRole = trackerRole,
+                TrackerRole = (steamVrTrackerRole != TrackerRole.None ? steamVrTrackerRole: this.GuessTrackerRole(i)),
             });
         }
         

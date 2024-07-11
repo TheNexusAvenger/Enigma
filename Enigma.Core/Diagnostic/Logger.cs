@@ -14,6 +14,11 @@ public class Logger
     public static readonly Nexus.Logging.Logger NexusLogger = new Nexus.Logging.Logger();
 
     /// <summary>
+    /// Set of the messages that have been logged that are only meant to be logged once.
+    /// </summary>
+    private static readonly HashSet<string> _loggedOnceMessages = new HashSet<string>();
+
+    /// <summary>
     /// Static instance of the console output.
     /// </summary>
     private static readonly ConsoleOutput ConsoleOutput = new ConsoleOutput()
@@ -87,6 +92,18 @@ public class Logger
     public static void Error(object content)
     {
         NexusLogger.Error(content);
+    }
+
+    /// <summary>
+    /// Logs a message only once. Repeated attempts will be ignored.
+    /// </summary>
+    /// <param name="logLevel">Log level to log with.</param>
+    /// <param name="message">Message to log once.</param>
+    [LogTraceIgnore]
+    public static void LogOnce(LogLevel logLevel, string message)
+    {
+        if (!_loggedOnceMessages.Add(message)) return;
+        NexusLogger.Log(message, logLevel);
     }
     
     /// <summary>

@@ -111,6 +111,82 @@ public class OpenVrInputsTest
         
         Assert.That(this._openVrInputs.GetHardwareId(1), Is.EqualTo("/devices/<UNDEFINED_TrackingSystemName>/<UNDEFINED_SerialNumber>"));
     }
+
+    [Test]
+    public void TestGuessTrackerRoleControllerType()
+    {
+        var testOpenVrDevice = new TestOpenVrDevice()
+        {
+            DeviceClass = ETrackedDeviceClass.GenericTracker,
+            Properties = new Dictionary<ETrackedDeviceProperty, string>()
+            {
+                { ETrackedDeviceProperty.Prop_ControllerType_String, "vive_tracker" },
+            },
+        };
+        this._ovrSystem.Devices.Add(testOpenVrDevice);
+        
+        // Note: SteamVR exposes Left Wrist, Right Wrist, Left Ankle, and Right Ankle, but no tracker name is set.
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.None));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_handed";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.Handed));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_left_foot";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.LeftFoot));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_right_foot";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.RightFoot));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_left_shoulder";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.LeftShoulder));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_right_shoulder";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.RightShoulder));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_left_elbow";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.LeftElbow));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_right_elbow";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.RightElbow));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_left_knee";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.LeftKnee));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_right_knee";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.RightKnee));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_waist";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.Waist));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_chest";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.Chest));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_Camera";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.Camera));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_ControllerType_String] = "vive_tracker_keyboard";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.Keyboard));
+    }
+
+    [Test]
+    public void TestGuessTrackerRoleControllerSerialNumber()
+    {
+        var testOpenVrDevice = new TestOpenVrDevice()
+        {
+            DeviceClass = ETrackedDeviceClass.GenericTracker,
+            Properties = new Dictionary<ETrackedDeviceProperty, string>()
+            {
+                { ETrackedDeviceProperty.Prop_SerialNumber_String, "unknown" },
+            },
+        };
+        this._ovrSystem.Devices.Add(testOpenVrDevice);
+        
+        // This list may or may not be complete for Standable. There is no obvious documentation.
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.None));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Left Foot";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.LeftFoot));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Right Foot";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.RightFoot));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Left Elbow";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.LeftElbow));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Right Elbow";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.RightElbow));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Left Knee";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.LeftKnee));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Right Knee";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.RightKnee));
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Hips";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.None)); // TODO: Should this be Waist?
+        testOpenVrDevice.Properties[ETrackedDeviceProperty.Prop_SerialNumber_String] = "Chest";
+        Assert.That(this._openVrInputs.GuessTrackerRole(1), Is.EqualTo(TrackerRole.Chest));
+    }
     
     [Test]
     public void TestGetListDevices()
@@ -165,6 +241,7 @@ public class OpenVrInputsTest
             {
                 { ETrackedDeviceProperty.Prop_TrackingSystemName_String, "lighthouse" },
                 { ETrackedDeviceProperty.Prop_SerialNumber_String, "LHR-12ABCD78" },
+                { ETrackedDeviceProperty.Prop_ControllerType_String, "vive_tracker_left_shoulder" },
             },
         });
         this._ovrSystem.Devices.Add(new TestOpenVrDevice()
@@ -184,7 +261,7 @@ public class OpenVrInputsTest
         var device1 = inputs[0];
         Assert.That(device1.DeviceId, Is.EqualTo(1));
         Assert.That(device1.DeviceType, Is.EqualTo(ETrackedDeviceClass.GenericTracker));
-        Assert.That(device1.TrackerRole, Is.EqualTo(TrackerRole.None));
+        Assert.That(device1.TrackerRole, Is.EqualTo(TrackerRole.LeftShoulder));
         Assert.That(device1.Position, Is.EqualTo(Vector3.Zero));
         Assert.That(device1.Rotation, Is.EqualTo(new Quaternion(-0.5f, 0, 0, 0)));
         Assert.That(device1.Velocity, Is.EqualTo(new Vector3(1, 2, 3).ConvertMetersToFeet()));

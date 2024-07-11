@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
 using Enigma.Core.Roblox;
 using Microsoft.Extensions.Logging;
+using Valve.VR;
 
 namespace Enigma.Core.Program;
 
@@ -148,10 +149,16 @@ public abstract class BaseProgram
         {
             var hardwareIdToShow = (maskData ? OpenVrPropertyMasker.MaskDeviceId(device.HardwareId) : device.HardwareId);
             devicesOutput.Append($"\n| [{device.DeviceId}] {hardwareIdToShow} ({device.DeviceType})");
+            if (device.DeviceType == ETrackedDeviceClass.GenericTracker)
+            {
+                devicesOutput.Append($"\n|   Guessed role: {device.GuessedRole}");
+                devicesOutput.Append($"\n|   SteamVR role: {device.SteamVrRole}");
+            }
+            devicesOutput.Append($"\n|   Properties:");
             foreach (var (propertyName, propertyValue) in device.StringProperties)
             {
                 var valueToShow = (maskData ? OpenVrPropertyMasker.MaskProperty(propertyName, propertyValue) : propertyValue);
-                devicesOutput.Append($"\n|   {propertyName}: \"{valueToShow}\"");
+                devicesOutput.Append($"\n|     {propertyName}: \"{valueToShow}\"");
             }
         }
         Logger.Info(devicesOutput);

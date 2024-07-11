@@ -96,6 +96,8 @@ Note: The plugin might be limited to replicating data at 8hz
   will try to paste to it.
   - The normal Roblox client outside of the game will have the same problem. Navigation
     may not work when Enigma is active.
+- Certain trackers may not have the correct roles detected. If a warning for this appears,
+  please create a GitHub issue with the full results from `list-devices --masked`.
 
 ### macOS and Linux Support
 At the moment, macOS and Linux probably do not work. It is unclear if they can be supported.
