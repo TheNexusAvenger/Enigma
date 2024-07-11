@@ -110,7 +110,7 @@ public class OpenVrInputs
         var registeredDeviceType = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_RegisteredDeviceType_String);
         if (registeredDeviceType != null)
         {
-            return registeredDeviceType;
+            return $"/devices/{registeredDeviceType}";
         }
         
         // Return based on TrackingSystemName and SerialNumber (Tundra trackers).
