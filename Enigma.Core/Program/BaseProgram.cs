@@ -24,8 +24,13 @@ public abstract class BaseProgram
     /// <summary>
     /// Command option for enabling logging for ASP.NET Core.
     /// </summary>
-    public static readonly Option<bool> HttpDebugLogging = new Option<bool>("--debug-http", "Enables logging for the ASP.NET Core HTTP server used by the Roblox Studio companion app.");
+    public static readonly Option<bool> HttpDebugLoggingOption = new Option<bool>("--debug-http", "Enables logging for the ASP.NET Core HTTP server used by the Roblox Studio companion app.");
     
+    /// <summary>
+    /// Command option for masking OpenVR properties in list-devices.
+    /// </summary>
+    public static readonly Option<bool> MaskPropertiesOption = new Option<bool>("--masked", "Masks some properties that may or may not be sensitive.");
+
     /// <summary>
     /// Command for running the application.
     /// </summary>
@@ -50,10 +55,11 @@ public abstract class BaseProgram
         // Add the options to the commands.
         RunCommand.AddOption(DebugOption);
         RunCommand.AddOption(TraceOption);
-        RunCommand.AddOption(HttpDebugLogging);
+        RunCommand.AddOption(HttpDebugLoggingOption);
         RunCommand.SetHandler(this.RunApplicationAsync);
         ListDevicesCommand.AddOption(DebugOption);
         ListDevicesCommand.AddOption(TraceOption);
+        ListDevicesCommand.AddOption(MaskPropertiesOption);
         ListDevicesCommand.SetHandler(this.ListDevicesAsync);
         
         // Create the root command.
@@ -61,7 +67,7 @@ public abstract class BaseProgram
         var rootCommand = new RootCommand(description: "Provides SteamVR tracker data to the Roblox client.");
         rootCommand.AddOption(DebugOption);
         rootCommand.AddOption(TraceOption);
-        rootCommand.AddOption(HttpDebugLogging);
+        rootCommand.AddOption(HttpDebugLoggingOption);
         rootCommand.AddCommand(RunCommand);
         rootCommand.AddCommand(ListDevicesCommand);
         rootCommand.SetHandler(this.RunApplicationAsync);
@@ -97,7 +103,7 @@ public abstract class BaseProgram
         this.PrepareApplication(invocationContext);
         
         // Check if logging should be added to ASP.NET.
-        if (invocationContext.ParseResult.GetValueForOption(HttpDebugLogging))
+        if (invocationContext.ParseResult.GetValueForOption(HttpDebugLoggingOption))
         {
             this.AspNetLoggingEnabled = true;
             Logger.Debug("Enabled ASP.NET Core logging.");
@@ -134,15 +140,18 @@ public abstract class BaseProgram
         Logger.Info("Listing OpenVR devices.");
         
         // Get and list the OpenVR devices.
+        var maskData = invocationContext.ParseResult.GetValueForOption(MaskPropertiesOption);
         var devices = appInstances.OpenVrInputs.ListDevices();
         var devicesOutput = new StringBuilder();
         devicesOutput.Append($"OpenVR devices ({devices.Count}):");
         foreach (var device in devices)
         {
-            devicesOutput.Append($"\n| [{device.DeviceId}] {device.HardwareId} ({device.DeviceType})");
+            var hardwareIdToShow = (maskData ? OpenVrPropertyMasker.MaskDeviceId(device.HardwareId) : device.HardwareId);
+            devicesOutput.Append($"\n| [{device.DeviceId}] {hardwareIdToShow} ({device.DeviceType})");
             foreach (var (propertyName, propertyValue) in device.StringProperties)
             {
-                devicesOutput.Append($"\n|   {propertyName}: {propertyValue}");
+                var valueToShow = (maskData ? OpenVrPropertyMasker.MaskProperty(propertyName, propertyValue) : propertyValue);
+                devicesOutput.Append($"\n|   {propertyName}: \"{valueToShow}\"");
             }
         }
         Logger.Info(devicesOutput);
@@ -153,7 +162,8 @@ public abstract class BaseProgram
         trackersOutputs.Append($"SteamVR tracker roles ({trackerRoles.Count}):");
         foreach (var (trackerName, trackerRole) in trackerRoles)
         {
-            trackersOutputs.Append($"\n| {trackerName}: {trackerRole}");
+            var trackerNameToShow = (maskData ? OpenVrPropertyMasker.MaskDeviceId(trackerName) : trackerName);
+            trackersOutputs.Append($"\n| {trackerNameToShow}: {trackerRole}");
         }
         Logger.Info(trackersOutputs);
         
