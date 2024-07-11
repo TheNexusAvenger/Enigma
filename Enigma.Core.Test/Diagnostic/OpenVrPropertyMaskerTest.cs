@@ -38,6 +38,14 @@ public class OpenVrPropertyMaskerTest
     }
     
     [Test]
+    public void TestMaskDeviceIdOculusDevice()
+    {
+        Assert.That(OpenVrPropertyMasker.MaskDeviceId("Some123Id"), Is.EqualTo("So#####Id"));
+        Assert.That(OpenVrPropertyMasker.MaskDeviceId("oculus/Some123Id"), Is.EqualTo("oculus/So#####Id"));
+        Assert.That(OpenVrPropertyMasker.MaskDeviceId("/devices/12345/oculus/Some123Id"), Is.EqualTo("/devices/12#45/oculus/So#####Id"));
+    }
+    
+    [Test]
     public void TestMaskDeviceIdRegisteredLighthouseDevice()
     {
         Assert.That(OpenVrPropertyMasker.MaskDeviceId("htc/vive_trackerLHR-12ABCD78"), Is.EqualTo("htc/vive_trackerLHR-1######8"));

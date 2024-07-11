@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Enigma.Core.OpenVr.Model;
 using Valve.VR;
@@ -21,11 +23,13 @@ public partial class OpenVrPropertyMasker
         {ETrackedDeviceProperty.Prop_SerialNumber_String, MaskDeviceId},
         {ETrackedDeviceProperty.Prop_TrackingFirmwareVersion_String, MaskString},
         {ETrackedDeviceProperty.Prop_HardwareRevision_String, MaskString},
+        {ETrackedDeviceProperty.Prop_DriverVersion_String, MaskString},
         {ETrackedDeviceProperty.Prop_AllWirelessDongleDescriptions_String, MaskString},
         {ETrackedDeviceProperty.Prop_ConnectedWirelessDongle_String, MaskString},
         {ETrackedDeviceProperty.Prop_Firmware_ProgrammingTarget_String, MaskDeviceId},
         {ETrackedDeviceProperty.Prop_CompositeFirmwareVersion_String, MaskString},
         {ETrackedDeviceProperty.Prop_RegisteredDeviceType_String, MaskDeviceId},
+        {ETrackedDeviceProperty.Prop_DriverProvidedChaperonePath_String, MaskString},
         {ETrackedDeviceProperty.Prop_ManufacturerSerialNumber_String, MaskString},
         {ETrackedDeviceProperty.Prop_ComputedSerialNumber_String, MaskString},
         {ETrackedDeviceProperty.Prop_CameraFirmwareDescription_String, MaskString},
@@ -72,7 +76,33 @@ public partial class OpenVrPropertyMasker
     /// <returns>Masked version of the device id.</returns>
     public static string MaskDeviceId(string data)
     {
-        return LighthouseDeviceIdRegex().Replace(data, match => $"{match.Groups[1]}{match.Groups[2]}{new string(MaskCharacter, match.Groups[3].Length)}{match.Groups[4]}");
+        // Return a masked string for SteamVR lighthouse-based device ids.
+        var lighthouseMaskedData = LighthouseDeviceIdRegex().Replace(data, match => $"{match.Groups[1]}{match.Groups[2]}{new string(MaskCharacter, match.Groups[3].Length)}{match.Groups[4]}");
+        if (data != lighthouseMaskedData)
+        {
+            return lighthouseMaskedData;
+        }
+        
+        // Return a masked string if there are any numbers.
+        // This is mainly for the Oculus/Meta headsets using Quest Link.
+        if (data.Any(char.IsDigit))
+        {
+            var maskedSections = new StringBuilder();
+            var sections = data.Split("/");
+            for (var i = 0; i < sections.Length; i++)
+            {
+                var section = sections[i];
+                maskedSections.Append(section.Any(char.IsDigit) ? MaskString(section) : section);
+                if (i != sections.Length - 1)
+                {
+                    maskedSections.Append('/');
+                }
+            }
+            return maskedSections.ToString();
+        }
+        
+        // Return the original string.
+        return data;
     }
 
     /// <summary>
