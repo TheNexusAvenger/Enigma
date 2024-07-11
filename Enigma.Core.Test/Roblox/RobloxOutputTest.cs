@@ -190,8 +190,8 @@ public class RobloxOutputTest
         this.TestWindowState.AddState("Roblox");
         this.TestWindowState.AddState("Roblox");
         Assert.That(this.RobloxOutput.PushTrackersAsync(trackerInputs).Result, Is.True);
-        Assert.That(this.RobloxOutput.LastData, Is.EqualTo("1|1|4|1.000|2.000|3.000|0.100|0.200|0.300|0.400|4.000|5.000|6.000"));
-        this.TestClipboard.AssertClipboard("1|1|4|1.000|2.000|3.000|0.100|0.200|0.300|0.400|4.000|5.000|6.000");
+        Assert.That(this.RobloxOutput.LastData, Is.EqualTo("2|1|4|0|1|4|1|3|1.000|2.000|3.000|2|4|0.100|0.200|0.300|0.400|3|3|4.000|5.000|6.000"));
+        this.TestClipboard.AssertClipboard("2|1|4|0|1|4|1|3|1.000|2.000|3.000|2|4|0.100|0.200|0.300|0.400|3|3|4.000|5.000|6.000");
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.F13);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyDown, VirtualKeyCode.LCONTROL);
         this.TestKeyboard.AssertEvent(TestKeyboard.KeyEvent.KeyPress, VirtualKeyCode.VK_A);

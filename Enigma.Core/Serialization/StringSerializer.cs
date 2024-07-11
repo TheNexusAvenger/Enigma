@@ -27,6 +27,17 @@ public class StringSerializer
     }
 
     /// <summary>
+    /// Adds a device property.
+    /// </summary>
+    /// <param name="deviceProperty">Device property to serialize.</param>
+    /// <param name="totalValues">Values that are sent for the property.</param>
+    public void AddDeviceProperty(DeviceProperty deviceProperty, int totalValues)
+    {
+        this.Add((int) deviceProperty);
+        this.Add(totalValues);
+    }
+
+    /// <summary>
     /// Adds a float to serialize with less precision.
     /// Only up to 3 decimal points are kept, with the rest ignored to save data.
     /// </summary>
