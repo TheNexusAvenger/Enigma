@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
 using Enigma.Core.Extension;
 using Enigma.Core.OpenVr.Model;
+using Enigma.Core.Shim.OpenVr;
 using OVRSharp;
 using OVRSharp.Exceptions;
 using OVRSharp.Math;
@@ -29,15 +30,17 @@ public class OpenVrInputs
     /// <summary>
     /// Instance of the OpenVR system for reading inputs.
     /// </summary>
-    private CVRSystem? _ovrSystem;
+    private IOVRSystem? _ovrSystem;
 
     /// <summary>
     /// Creates a OpenVR inputs reader.
     /// </summary>
     /// <param name="steamVrSettingsState">State of the SteamVR settings to read tracker roles.</param>
-    public OpenVrInputs(SteamVrSettingsState steamVrSettingsState)
+    /// <param name="ovrSystem">Optional IOVRSystem implementation to used.</param>
+    public OpenVrInputs(SteamVrSettingsState steamVrSettingsState, IOVRSystem? ovrSystem = null)
     {
         this._steamVrSettingsState = steamVrSettingsState;
+        this._ovrSystem = ovrSystem;
     }
 
     /// <summary>
@@ -51,7 +54,7 @@ public class OpenVrInputs
             try
             {
                 // Initialize OpenVR.
-                this._ovrSystem = new Application(Application.ApplicationType.Background).OVRSystem;
+                this._ovrSystem = new OVRSystem(new Application(Application.ApplicationType.Background).OVRSystem);
             }
             catch (OpenVRSystemException<EVRInitError>)
             {
@@ -83,7 +86,7 @@ public class OpenVrInputs
     /// <param name="trackerIndex">Index of the tracker to get the value of.</param>
     /// <param name="property">Property to try tor ead.</param>
     /// <returns>The value for the property, if it exists.</returns>
-    private string? GetTrackerStringProperty(uint trackerIndex, ETrackedDeviceProperty property)
+    public string? GetTrackerStringProperty(uint trackerIndex, ETrackedDeviceProperty property)
     {
         // Throw an exception if OpenVR is not initialized.
         if (this._ovrSystem == null)
@@ -104,7 +107,7 @@ public class OpenVrInputs
     /// </summary>
     /// <param name="trackerIndex">Index of the tracker to get the id for.</param>
     /// <returns>Hardware id of the track.</returns>
-    private string GetHardwareId(uint trackerIndex)
+    public string GetHardwareId(uint trackerIndex)
     {
         // Return based on Prop_RegisteredDeviceType (Vive trackers, Amethyst).
         var registeredDeviceType = this.GetTrackerStringProperty(trackerIndex, ETrackedDeviceProperty.Prop_RegisteredDeviceType_String);
