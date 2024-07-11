@@ -42,7 +42,7 @@ public class Program : BaseProgram
         var webServerTask = appInstances.WebServer.StartAsync(this.AspNetLoggingEnabled);
         appInstances.RobloxOutputLoop.Start();
         appInstances.LogOutputLoop.Start();
-        Logger.Info("Started Enigma. Make sure a Roblox client or Roblox Studio window is focused.");
+        Logger.Info("Started Enigma. Make sure a Roblox client window is focused.");
     
         // Wait for the web server to exit.
         await webServerTask;
