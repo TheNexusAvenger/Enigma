@@ -92,8 +92,6 @@ Note: The plugin might be limited to replicating data at 8hz
   must be brought to the project first.
 - Meta Quest standalone is not possible to support, and Meta Quest Link does not seem
   to be detected by OpenVR.
-- Inertial Measurement Unit (IMU)-based trackers are untested. Special support might
-  be required.
 - Roblox on Windows Stores (sometimes known as UWP) does not support VR, but Enigma
   will try to paste to it.
   - The normal Roblox client outside of the game will have the same problem. Navigation
