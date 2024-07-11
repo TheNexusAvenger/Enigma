@@ -32,8 +32,10 @@ if len(gitRemoteParts) >= 1:
 print("Git commit: " + gitCommit)
 print("Git owner: " + gitOwner)
 print("Git project: " + gitProject)
-gitTag = input("Enter the Git tag that will be used: ")
+gitTag = input("Enter the Git tag that will be used (ex: V.1.2.0): ")
+versionNumber = input("Enter the version that will be used (ex: 1.2.0): ")
 print("Git tag: " + gitTag)
+print("Version number: " + versionNumber)
 
 # Write the version information.
 with open(os.path.join(os.path.dirname(__file__), "Enigma.Core", "Version.json"), "w") as file:
@@ -83,7 +85,7 @@ for platform in platforms:
 
         # Compile the project for the platform.
         print("Exporting " + projectName + " for " + platformName)
-        subprocess.call(["dotnet", "publish", "-r", platformRuntime, "-c", "Release", projectName + "/" + projectName + ".csproj"])
+        subprocess.call(["dotnet", "publish", "-r", platformRuntime, "-c", "Release", "-p:Version=" + versionNumber, projectName + "/" + projectName + ".csproj"])
 
         # Clear the unwanted files of the compile.
         dotNetVersion = os.listdir(projectName + "/bin/Release/")[0]
