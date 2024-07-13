@@ -65,7 +65,7 @@ public class SteamVrSettingsState
     {
         // Listen to SteamVR file changes.
         var steamVrSettingsDirectory = Path.GetDirectoryName(this._filePath);
-        if (steamVrSettingsDirectory != null)
+        if (steamVrSettingsDirectory != null && Directory.Exists(steamVrSettingsDirectory))
         {
             var fileSystemWatcher = new FileSystemWatcher(steamVrSettingsDirectory);
             fileSystemWatcher.Changed += async (_, eventArgs) =>
