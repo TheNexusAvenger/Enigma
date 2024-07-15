@@ -98,7 +98,7 @@ function Enigma.GetUserCFrame(self: Enigma, UserCFrame: TrackerRole, Index: numb
     local RawInputData = UserCFrameGroup[Index or 1]
     if not RawInputData then return nil end
     local TimeOffset = CalculateRolloff(0.03, 0.03 * 3, tick() - self.LastInputTime)
-    return CFrame.new(RawInputData.HeadRelativeVelocity * TimeOffset) * RawInputData.HeadRelativeCFrame
+    return CFrame.new(RawInputData.FloorRelativeVelocity * TimeOffset) * RawInputData.FloorRelativeCFrame
 end
 
 --[[

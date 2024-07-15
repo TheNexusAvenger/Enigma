@@ -10,8 +10,8 @@ local WarnedMessages = {}
 
 export type RawOpenVRInput = {
     TrackerRole: TrackerRole.TrackerRole,
-    HeadRelativeCFrame: CFrame,
-    HeadRelativeVelocity: Vector3,
+    FloorRelativeCFrame: CFrame,
+    FloorRelativeVelocity: Vector3,
 }
 
 
@@ -47,8 +47,8 @@ return function(Data: string): {RawOpenVRInput}
             local Velocity = Deserializer:ReadVector3()
             table.insert(RawInputs, {
                 TrackerRole = Role :: TrackerRole.TrackerRole,
-                HeadRelativeCFrame = CFrame.new(Position.X, Position.Y, Position.Z, Rotation.X, Rotation.Y, Rotation.Z, Rotation.W),
-                HeadRelativeVelocity = Velocity,
+                FloorRelativeCFrame = CFrame.new(Position.X, Position.Y, Position.Z, Rotation.X, Rotation.Y, Rotation.Z, Rotation.W),
+                FloorRelativeVelocity = Velocity,
             })
         end
     else
@@ -84,8 +84,8 @@ return function(Data: string): {RawOpenVRInput}
             --Add the input.
             table.insert(RawInputs, {
                 TrackerRole = Role :: TrackerRole.TrackerRole,
-                HeadRelativeCFrame = CFrame.new(Position.X, Position.Y, Position.Z, Rotation.X, Rotation.Y, Rotation.Z, Rotation.W),
-                HeadRelativeVelocity = Velocity,
+                FloorRelativeCFrame = CFrame.new(Position.X, Position.Y, Position.Z, Rotation.X, Rotation.Y, Rotation.Z, Rotation.W),
+                FloorRelativeVelocity = Velocity,
             })
         end
 
