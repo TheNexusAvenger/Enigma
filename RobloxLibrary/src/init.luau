@@ -4,6 +4,7 @@
 local LAST_INPUT_TIMEOUT_SECONDS = 0.5
 
 local UserInputService = game:GetService("UserInputService")
+local VRService = game:GetService("VRService")
 
 local TrackerRole = require(script:WaitForChild("Data"):WaitForChild("TrackerRole"))
 local CombinedInput = require(script:WaitForChild("Input"):WaitForChild("CombinedInput"))
@@ -18,6 +19,7 @@ local Enigma = {
     Input = nil :: CombinedInput.CombinedInput?,
     LastInputData = "",
     LastInputTime = tick(),
+    LastFloorCFrameToOrigin = CFrame.identity,
     LastInputs = {} :: {[TrackerRole]: {DeserializeOpenVrInputs.RawOpenVRInput}},
 }
 
@@ -72,6 +74,7 @@ function Enigma.UpdateUserCFrames(self: Enigma): ()
         end
         self.LastInputData = NewInputData
         self.LastInputTime = tick()
+        self.LastFloorCFrameToOrigin = VRService:GetUserCFrame(Enum.UserCFrame.Floor)
         self.LastInputs = NewInputs
     end)
 end
@@ -98,7 +101,7 @@ function Enigma.GetUserCFrame(self: Enigma, UserCFrame: TrackerRole, Index: numb
     local RawInputData = UserCFrameGroup[Index or 1]
     if not RawInputData then return nil end
     local TimeOffset = CalculateRolloff(0.03, 0.03 * 3, tick() - self.LastInputTime)
-    return CFrame.new(RawInputData.FloorRelativeVelocity * TimeOffset) * RawInputData.FloorRelativeCFrame
+    return self.LastFloorCFrameToOrigin * (CFrame.new(RawInputData.FloorRelativeVelocity * TimeOffset) * RawInputData.FloorRelativeCFrame)
 end
 
 --[[
