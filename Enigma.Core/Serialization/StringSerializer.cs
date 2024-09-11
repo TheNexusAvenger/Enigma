@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 using System.Text;
 
 namespace Enigma.Core.Serialization;
@@ -44,7 +45,7 @@ public class StringSerializer
     /// <param name="data">Float to serialize.</param>
     public void AddFloat(float data)
     {
-        this.Add($"{data:f3}");
+        this.Add($"{string.Format(CultureInfo.InvariantCulture, "{0:f3}", data)}");
     }
 
     /// <summary>
