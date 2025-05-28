@@ -1,7 +1,7 @@
 {
     "RojoBuildStrategy": {
         "ProjectFile": "test.project.json",
-        "AvantInjectionDirectory": "test/"
+        "AvantInjectionDirectory": "RobloxLibrary/test/"
     },
     "OpenCloud": {
         "ApiKeyEnvironmentVariable": "OPEN_CLOUD_TEST_API_KEY",
