@@ -4,12 +4,12 @@ repository = "https://github.com/TheNexusAvenger/Nexus-Appendage"
 description = "Provides SteamVR tracker data to the Roblox client."
 license = "MIT"
 authors = ["TheNexusAvenger"]
-version = "0.5.1"
+version = "0.5.2"
 
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
 exclude = ["**"]
-include = ["RobloxLibrary/src", "RobloxLibrary/src/*", "default.project.json", "wally.lock", "wally.toml"]
+include = ["RobloxLibrary", "RobloxLibrary/src", "RobloxLibrary/src/*", "default.project.json", "wally.lock", "wally.toml"]
 
 [dependencies]
