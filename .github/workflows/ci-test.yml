@@ -11,11 +11,11 @@ jobs:
     # Checkout the repository.
     - name: Checkout Repository
       uses: actions/checkout@v4
-    # Set up .NET 8.0.
-    - name: Set Up .NET 8.0
+    # Set up .NET 9.0.
+    - name: Set Up .NET 9.0
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '9.0.x'
     # Run the .NET unit tests.
     - name: Run .NET Tests
       run: dotnet test
