@@ -29,6 +29,13 @@ export type Enigma = typeof(Enigma)
 
 
 --[[
+Returns if Enigma is initialized.
+--]]
+function Enigma.IsInitialized(self: Enigma): boolean
+    return self.Input ~= nil
+end
+
+--[[
 Returns if Enigma is considered active.
 --]]
 function Enigma.IsActive(self: Enigma): ()
