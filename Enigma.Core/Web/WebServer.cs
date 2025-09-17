@@ -68,6 +68,30 @@ public class WebServer
         var enigmaApi = app.MapGroup("/enigma");
         enigmaApi.MapGet("/status", () => "UP");
         enigmaApi.MapGet("/data", () => this._robloxOutput.LastRequestedData);
+        enigmaApi.MapGet("/stream", async (context) =>
+        {
+            // Prepare the response for an event stream.
+            context.Response.ContentType = "text/event-stream";
+            
+            // Create the busy-wait loop to keep the connection alive.
+            // When the connection closes, unregister the connection.
+            try
+            {
+                // Keep connection open until client disconnects
+                while (!context.RequestAborted.IsCancellationRequested)
+                {
+                    await Task.Delay(250, context.RequestAborted);
+                }
+            }
+            catch
+            {
+                // Handle client disconnect
+            }
+            finally
+            {
+                
+            }
+        });
         enigmaApi.MapPost("/heartbeat", () =>
         {
             this._robloxStudioState.HeartbeatSent();
