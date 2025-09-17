@@ -72,6 +72,7 @@ public class WebServer
         {
             // Prepare the response for an event stream.
             context.Response.ContentType = "text/event-stream";
+            this._robloxOutput.StreamedResponses.Add(context.Response);
             
             // Create the busy-wait loop to keep the connection alive.
             // When the connection closes, unregister the connection.
@@ -85,11 +86,12 @@ public class WebServer
             }
             catch
             {
-                // Handle client disconnect
+                // No action should be taken when disconnected.
             }
             finally
             {
-                
+                // Remove the connection now that it is closed.
+                this._robloxOutput.StreamedResponses.Remove(context.Response);
             }
         });
         enigmaApi.MapPost("/heartbeat", () =>

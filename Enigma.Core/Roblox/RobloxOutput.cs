@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Enigma.Core.Diagnostic;
 using Enigma.Core.OpenVr.Model;
 using Enigma.Core.Shim.Output;
 using Enigma.Core.Shim.Window;
 using InputSimulatorStandard.Native;
+using Microsoft.AspNetCore.Http;
 using IClipboard = Enigma.Core.Shim.Output.IClipboard;
 
 namespace Enigma.Core.Roblox;
@@ -15,6 +17,11 @@ public class RobloxOutput
     /// Interval in milliseconds between sending heartbeat keys.
     /// </summary>
     public const int HeartbeatIntervalMilliseconds = 250;
+    
+    /// <summary>
+    /// HTTP responses to stream data.
+    /// </summary>
+    public readonly List<HttpResponse> StreamedResponses = new List<HttpResponse>();
 
     /// <summary>
     /// The last data that was sent to Roblox.
@@ -77,6 +84,20 @@ public class RobloxOutput
             return true;
         }
         this.LastRequestedData = data;
+        
+        // Send the streamed data.
+        foreach (var response in this.StreamedResponses)
+        {
+            try
+            {
+                response.WriteAsync($"{data}\n\n").Wait();
+                response.Body.FlushAsync().Wait();
+            }
+            catch
+            {
+                // No action if the write failed.
+            }
+        }
         
         // Return if the window is not focused.
         if (!this._windowState.IsRobloxFocused())

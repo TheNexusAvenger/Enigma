@@ -3,23 +3,17 @@
 --This plugin relies on the HttpService on the local host to transfer data instead.
 --!strict
 
-local DATA_LOOP_DELAY = 1 / 30 --30hz (1800 requests per minute) is below the 2000 requests per minute max for plugins.
-local DATA_LOOP_FALLBACK_DELAY = 1 / 8 --8hz (480 requests per minute) is below the 500 requests per minute max for servers.
 local HEARTBEAT_DELAY_SECONDS = 3
 local DATA_VALUE_NAME = "__EnigmaPluginData"
 local ENIGMA_BASE_URL = "http://localhost:52821/enigma"
 local ENIMGA_HEARTBEAT_URL = `{ENIGMA_BASE_URL}/heartbeat`
-local ENIMGA_DATA_URL = `{ENIGMA_BASE_URL}/data`
+local ENIMGA_STREAM_URL = `{ENIGMA_BASE_URL}/stream`
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 
-local RobloxVersion = Version()
-local RobloxVersionIsLimited = plugin:GetSetting("Enigma_LastVersionWith500RequestLimit") == RobloxVersion
-local DataFetchLoopActive = false
-local TooManyRequestsReached = false
-local SentRequests = 0
+local DataFetchActive = false
 
 
 
@@ -32,7 +26,6 @@ local function SendHttpRequest(Url: string, Method: string): string
         Url = Url,
         Method = Method,
     })
-    SentRequests += 1
     if not Response.Success then
         local Message = `[Enigma] Response was HTTP {Response.StatusCode} from {Method} {Url}: {Response.Body}`
         warn(Message)
@@ -46,101 +39,53 @@ Sends a heartbeat request. Returns if it was successful.
 --]]
 local function SendHeartbeatRequest(): boolean
     --Send the heartbeat request.
-    local Worked, Message = pcall(function()
+    local Worked, _ = pcall(function()
         SendHttpRequest(ENIMGA_HEARTBEAT_URL, "POST")
     end)
-
-    --Change the replication delay if the version is potentially limited to 500 requests / minute.
-    --See: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079
-    if Worked and not TooManyRequestsReached and RobloxVersionIsLimited then
-        TooManyRequestsReached = true
-        DATA_LOOP_DELAY = DATA_LOOP_FALLBACK_DELAY
-        if RunService:IsRunMode() then
-            warn(`[Enigma] Based on a previous run, replication will be limited to 8hz for version Roblox Studio version {RobloxVersion}. Bug report for this limitation: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079`)
-        end
-    end
-
-    --Print if too many requests was reached.
-    if not Worked and Message == "Number of requests exceeded limit" then
-        warn(`[Enigma] Number of HTTP service requests exceeded ({SentRequests} requests completed). The refresh rate must be decreased.`)
-        if not TooManyRequestsReached then
-            TooManyRequestsReached = true
-            if SentRequests >= 400 and SentRequests <= 500 then
-                warn("[Enigma] Normally, the limit for plugins allows 2,000 requests per minute, but it seems that 500 requests per minute is active.")
-                warn(`[Enigma] Replication will be limited to 8hz for version Roblox Studio version {RobloxVersion}.`)
-                warn("[Enigma] Bug report for this limitation: https://devforum.roblox.com/t/plugin-localhost-httpservice-limit-affected-by-run-mode/3046079")
-                warn("[Enigma] For the current session, replication should resume in about 40 seconds.")
-                DATA_LOOP_DELAY = DATA_LOOP_FALLBACK_DELAY
-                plugin:SetSetting("Enigma_LastVersionWith500RequestLimit", RobloxVersion)
-            end
-        end
-    end
 
     --Return if the heartbeat worked.
     return Worked
 end
 
 --[[
-Sends a data request. Returns the response.
-Throws an error if the request failed.
---]]
-local function SendDataRequest(): string
-    return SendHttpRequest(ENIMGA_DATA_URL, "GET")
-end
-
---[[
-Starts the data fetch loop.
-The loop only runs in a run mode.
+Starts listening for data.
+The listening only runs in a run mode.
 --]]
 local function StartDataFetch(): ()
     --Return if the loop is active.
-    if DataFetchLoopActive then return end
-    if not RunService:IsRunMode() then return end
-    DataFetchLoopActive = true
+    if DataFetchActive then return end
+    if not RunService:IsRunning() then return end
+    DataFetchActive = true
 
-    --Continously fetch the data.
-    local DataFetchLoopStepActive = false
-    while DataFetchLoopActive do
-        if not DataFetchLoopStepActive then
-            DataFetchLoopStepActive = true
-            task.spawn(function()
-                xpcall(function()
-                    local Data = SendDataRequest()
-                    if not ReplicatedStorage:FindFirstChild(DATA_VALUE_NAME) then
-                        local NewDataValue = Instance.new("StringValue")
-                        NewDataValue.Name = DATA_VALUE_NAME
-                        NewDataValue.Value = Data
-                        NewDataValue.Archivable = false
-                        NewDataValue.Parent = ReplicatedStorage
-                    else
-                        (ReplicatedStorage:FindFirstChild(DATA_VALUE_NAME) :: StringValue).Value = Data
-                    end
-                end, function()
-                    DataFetchLoopActive = false
-                end)
-                DataFetchLoopStepActive = false
-            end)
+    --Listen to the stream.
+    local EventClient = HttpService:CreateWebStreamClient(Enum.WebStreamClientType.SSE, {
+        Url = ENIMGA_STREAM_URL,
+        Method = "GET",
+    })
+    local EventConnection = EventClient.MessageReceived:Connect(function(Data: string)
+        local ExistingDataValue = ReplicatedStorage:FindFirstChild(DATA_VALUE_NAME) :: StringValue
+        if not ExistingDataValue then
+            local NewDataValue = Instance.new("StringValue")
+            NewDataValue.Name = DATA_VALUE_NAME
+            NewDataValue.Value = Data
+            NewDataValue.Archivable = false
+            NewDataValue.Parent = ReplicatedStorage
+        else
+            ExistingDataValue.Value = Data
         end
-        task.wait(DATA_LOOP_DELAY)
-    end
+    end)
+    EventClient.Closed:Wait()
+    EventConnection:Disconnect()
 end
 
 
-
---Clear total requests every minute.
-task.spawn(function()
-    while true do
-        SentRequests = 0
-        task.wait(60)
-    end
-end)
 
 --Start the heartbeat loop.
 while true do
     if SendHeartbeatRequest() then
         task.spawn(StartDataFetch)
     else
-        DataFetchLoopActive = false
+        DataFetchActive = false
     end
     task.wait(HEARTBEAT_DELAY_SECONDS)
 end
